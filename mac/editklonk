@@ -1,3 +1,7 @@
+if [[ $TEMP == "" ]]; then
+  echo "Need to define the TEMP directory variable"
+  exit 1
+fi
 klonk="/Applications/Klonk.app/Contents/MacOS/Klonk"
 function echoing() {
   for vv in "$@"

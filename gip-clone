@@ -1,0 +1,45 @@
+function usage() {
+  echo ""
+  echo "Usage: gip-clone [-help] [-https|-ssh] <host> <user> <reponame>"
+  echo "  Assumes ssh by default unless you explicitly specify -https (or -ssh if you really want)"
+  echo ""
+  echo "Examples: "
+  echo "  gip-clone github.com jimmy_joe myrobot"
+  echo "  gip-clone -https github.com jimmy_joe myrobot"
+  echo "  gip-clone -ssh github.com jimmy_joe myrobot"
+  echo ""
+}
+function notEnough() {
+  if [[ $3 == "" ]]; then
+    echo ""
+    echo "ERROR: Not enough arguments"
+    usage
+    exit 1
+  fi
+}
+function ssh() {
+  notEnough "$@"
+  host=$1
+  echo $host
+  if [[ $host == "github" ]]; then
+    host="github.com"
+  fi
+  git clone git@$host:$2/$3.git
+}
+if [[ $1 == -help || $1 == --help ]]; then
+  usage
+elif [[ $1 == -https ]]; then
+  shift
+  notEnough "$@"
+  git clone https://$1/$2/$3.git
+elif [[ $1 == -ssh ]]; then
+  shift
+  ssh "$@"
+elif [[ $1 == -* ]]; then
+  echo ""
+  echo "ERROR: Invalid argument \"$1\" "
+  usage
+  exit 1
+else
+  ssh "$@"
+fi

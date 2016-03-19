@@ -1,0 +1,18 @@
+function mainStatus() {
+  git status | egrep '\t' | sed 's/^	//'
+}
+function filesOnly() {
+  sed 's/modified: *//' | sed 's/new file: *//' | sed 's/deleted: *//'
+}
+
+if [[ $1 == -h* || $1 == --h* ]]; then
+  echo "Usage: gip-status [--f | -f] "
+  echo "  --f : Shows files only without deleted/modified/added markers"
+  exit 1
+fi
+
+if [[ $1 == -f* || $1 == --f* ]]; then
+  mainStatus | filesOnly
+else
+  mainStatus | sed 's/new file: */added:	    /'
+fi

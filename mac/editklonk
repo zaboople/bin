@@ -1,0 +1,12 @@
+klonk="/Applications/Klonk.app/Contents/MacOS/Klonk"
+function echoing() {
+  for vv in "$@"
+  do
+      greadlink -f "$vv"
+  done
+}
+file=$TEMP/EditFileTemp$$$RANDOM
+echoing "$@" > $file
+cat $file
+cat $file | xargs $klonk
+rm $file

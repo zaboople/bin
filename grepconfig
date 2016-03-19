@@ -1,0 +1,1 @@
+find '.' '(' -name '*.xml' -o -name '*.properties' -o -name '*.yaml' ')' -print0 | xargs -0 egrep "$@"

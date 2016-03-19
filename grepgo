@@ -1,0 +1,1 @@
+find '.' -name Godeps -prune -o '(' -name '*.go' ')' -print0 | xargs -0 egrep "$@"

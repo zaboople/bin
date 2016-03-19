@@ -1,0 +1,21 @@
+bra=$(gip-branch)
+if [[ $bra == "master" ]]; then
+  if [[ $1 == "--force" ]]; then
+    force=$1
+    shift
+  else
+    echo "NO WAY am I letting you push master, at least not unless you --force me to."
+    exit 1
+  fi
+fi
+
+if [[ $1 == "-m" ]]; then
+  #You don't need a -m but if you do so we'll assume you forgot
+  shift
+fi
+if [[ $1 == "" ]]; then
+  echo "Need a commit message"
+  exit 1
+fi
+git status
+git commit -m "$@" && gip-push-branch $force

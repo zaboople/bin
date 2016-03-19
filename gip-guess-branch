@@ -1,0 +1,29 @@
+function usage() {
+  echo "Usage:"
+  echo "  gip-guess-branch [--all | --remote | --help] "
+}
+function stripWhite() {
+  # Strips leading whitespace as well as leading "* " on current branch
+  perl -pe 's/(\* |^ *)//'
+}
+
+if [[ $1 == --help || $1 == "" ]]; then
+  usage
+  exit
+elif [[ $1 == --all ]]; then
+  shift
+  # Our regex is going to yank the typical remote/origin/ trash that shows up at the front:
+  # And since a branch can be both local and remote, sort -u
+  git branch -a | stripWhite | perl -pe 's|.*?/.*?/||' | sort -u | egrep "$@"
+elif [[ $1 == --remote ]]; then
+  shift
+  # This time it's just the origin/ that we strip:
+  git branch -r | stripWhite | perl -pe 's|.*?/||' | egrep "$@"
+elif [[ $1 == --* ]]; then
+  echo
+  echo "ERROR: Unrecognized: $1"
+  echo
+  usage
+else
+  git branch | stripWhite | egrep "$@"
+fi

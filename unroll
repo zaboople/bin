@@ -1,0 +1,23 @@
+#!/bin/bash
+if [[ $1 == "-help" ]]; then
+  echo "Usage: Unroll [-sep expr]"
+  exit
+fi 
+
+if [[ $1 == -sep* ]]; then
+  shift;
+  separator="-F$1"
+  shift
+elif [[ $1 == -F  ]]; then
+  shift
+  separator="-F$@"
+elif [[ $1 == -F*  ]]; then
+  separator="$@"
+fi
+
+
+if [[ $separator != "" ]]; then
+  awk $separator '{for (i=1; i<=NF; i++) print $i;}' 
+else
+  awk '{for (i=1; i<=NF; i++) print $i;}' 
+fi

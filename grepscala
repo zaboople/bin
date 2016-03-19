@@ -1,0 +1,1 @@
+find '.' '(' -name '*.sbt' -o -name '*.scala' ')' -print0 | xargs -0 egrep "$@"

@@ -1,0 +1,37 @@
+#Print the list of pushed directories
+#Prepend line numbers
+#Grep
+
+function pickd {
+  x=$(pickdGrab "$@")
+  if [[ $x != "" ]]; then
+    pushd "+$x"
+  fi
+}
+function pickdGrab {
+
+  xxx=$(
+    dirs -p | gawk '{printf "%d\t%s\n", NR-1, $0}' | grep "$@" | ( while read line; do
+        if [[ $chosen != "" ]]; then
+          echo "Ambiguous additional match: $line"
+          ambig="y"
+        else
+          chosen=$line
+        fi
+      done
+
+      if [[ $chosen != "" && $ambig == "" ]]; then
+        echo $chosen | gawk '{printf "~~PICK:\t%s\n", $1}'
+      else
+        echo 'No match'
+      fi
+
+    )
+  )
+
+  if [[ $xxx == ~~PICK* ]]; then
+    yyy=$(echo $xxx | gawk '{printf $2}')
+    echo $yyy
+  fi
+
+}

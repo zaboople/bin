@@ -1,0 +1,1 @@
+find . -name '*.xml' | egrep "$@" | xargs edit

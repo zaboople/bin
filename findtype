@@ -1,0 +1,9 @@
+type=$1
+shift
+find . -type f -name "*.$type" | (
+  if [[ $1 != "" ]]; then
+    egrep "$@"
+  else
+    cat
+  fi
+)

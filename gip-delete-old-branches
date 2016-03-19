@@ -1,0 +1,6 @@
+##
+if [[ $1 == "--dryrun" ]]; then
+  git branch --merged | grep -v ' *master$' | egrep -v '^ *\*'
+else
+  git branch --merged | grep -v ' *master$' | xargs git branch -d
+fi

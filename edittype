@@ -1,0 +1,1 @@
+findtype "$@" | xargs edit

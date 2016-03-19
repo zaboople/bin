@@ -1,0 +1,15 @@
+bra=$(gip-branch)
+if [[ $bra == "master" && $1 != "--force" ]]; then
+  echo "NO WAY am I letting you push master, at least not unless you --force me to."
+  exit 1
+fi
+
+echo -n "Push \"$bra\"? "
+read yn
+
+yn=$(echo $yn | gawk '{print tolower($0)}')
+if [[ $yn == y* ]]; then
+  git push --set-upstream origin "$bra"
+else
+  echo 'Pfft, you weenie'
+fi

@@ -1,0 +1,10 @@
+# General purpose function to grep or cat
+function gerp() {
+  if [[ $1 == "" ]]; then
+    cat;
+  else
+    egrep "$@";
+  fi
+}
+
+find . -type f -name '*.scala' | gerp "$@"

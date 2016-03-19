@@ -1,0 +1,13 @@
+function usage() {
+  echo ""
+  echo ""
+}
+
+if [[ $1 == -r* || $1 == --r* ]]; then
+  shift
+  git push origin --delete "$@"
+  echo ""
+  git branch -dr origin/$1
+  echo ""
+fi
+gip-guess-branch "$@" && git branch -d "$@"

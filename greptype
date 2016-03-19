@@ -1,0 +1,2 @@
+type=$1; shift
+find . -type f -name "*.$type" -print0 | xargs -0 egrep --color=always "$@"

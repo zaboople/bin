@@ -1,0 +1,70 @@
+function usage() {
+    echo "Usage: "
+    echo "classpath [-reset] [-stdin | <path elements> ] "
+}
+
+delimiter=":"
+stdin="no"
+reset="no"
+debug="no"
+
+while [[ $1 == -* ]]; do
+  if [[ $1 == "-reset" ]]; then
+    reset="yes"
+    shift
+  elif [[ $1 == "-stdin" ]]; then
+    stdin="yes"
+    shift
+  elif [[ $1 == "-debug" ]]; then
+    debug="yes"
+    shift
+  elif [[ $1 == -h* ]]; then
+    usage
+    exit 0
+  else
+    echo "ERROR: Unrecognized: $1"
+    usage
+    exit 1
+  fi
+done
+
+firstYet="no"
+function firstDelim {
+  if [[ $first == "" ]]; then
+    echo -n $delimiter
+  fi
+  first=""
+}
+function chunk {
+  echo -n "export CLASSPATH="
+  if [[ $firstYet == "yes" ]]; then
+    echo -n '$CLASSPATH:'
+  else
+    firstYet="yes"
+  fi
+  echo "$@"
+}
+
+function doit() {
+  firstYet="no"
+  if [[ $reset == "yes" ]]; then
+    echo "export CLASSPATH="
+  elif [[ $CLASSPATH != "" ]]; then
+    firstYet="yes"
+  fi
+
+  if [[ $stdin == "yes" ]]; then
+    while read line
+    do
+      chunk "$line"
+    done
+  else
+    while [[ $1 != "" ]]; do
+      chunk "$1"
+      shift
+    done
+  fi
+  echo
+}
+
+doit "$@"

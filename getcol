@@ -1,0 +1,81 @@
+#!/bin/bash
+if [[ $1 == "-help" || $1 == "" ]]; then
+  echo "Usage: GetCol <index> [awk options...]"
+  exit 2
+fi
+
+
+#GET ARGS:
+while [[ "$1" != "" ]]; do
+  if [[ "$1" == -F ]]; then
+    F=$1
+    shift
+    Farg="$1"
+    shift
+  elif [[ "$1" == -F* ]]; then
+    F=$1
+    shift
+  else
+    index=$index" "$1
+    shift
+  fi
+done
+
+
+#Run script one of three ways:
+if [[ -n $Farg  ]]; then
+  gawk $F "$Farg" -v "vindex=$index" '
+  BEGIN{
+    x=FS
+    FS=" "
+    split(vindex, aray);
+    FS=x
+  }
+  {j=0;
+   for (i in aray) {
+     if (j)
+       printf " ";
+     else
+       j=1
+     printf $aray[i];
+   }
+   print "";
+  }'
+elif [[ -n $F ]]; then
+  gawk $F         -v "vindex=$index" '
+  BEGIN{
+    x=FS
+    FS=" "
+    split(vindex, aray);
+    FS=x
+  }
+  {j=0;
+   for (i in aray) {
+     if (j)
+       printf " ";
+     else
+       j=1
+     printf $aray[i];
+   }
+   print "";
+  }'
+else
+  gawk -v "vindex=$index" '
+  BEGIN{
+    x=FS
+    FS=" "
+    split(vindex, aray);
+    FS=x
+  }
+  {j=0;
+   for (i in aray) {
+     if (j)
+       printf " ";
+     else
+       j=1
+     printf $aray[i];
+   }
+   print "";
+  }'
+fi
+

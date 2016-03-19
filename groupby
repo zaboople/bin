@@ -1,0 +1,55 @@
+#!/bin/bash
+if [[ $1 == -help ]]; then
+  echo 'Usage: <cmd> | GroupBy [-having <expr> [ -nocount ] ]'
+  echo '  <expr> can be something like ">= 2", "<5", "==3"   '
+  exit
+fi
+
+
+having=' > 0 '
+nocount=""
+
+while [[ $1 != "" ]]; do
+  if [[ $1 == -having ]]; then
+    shift
+    having=$1
+    shift
+  elif [[ $1 == -nocount ]]; then
+    shift
+    nocount=on
+  fi
+done
+
+
+
+sort | \
+  gawk -v "nocount=$nocount" '
+
+       function punt(count, line){
+         if (nocount!="on")
+           printf count"\t->"
+         print line; 
+       }
+
+       BEGIN{ 
+         x=0; lastline=""
+       } 
+    
+       {
+         if (lastline != $0)  {
+           if (x '"$having"' )
+             punt(x, lastline)
+           lastline=$0;
+           x=1
+         } 
+         else {
+           x=x+1;
+         }
+       }
+       
+       END {       
+         if (x '"$having"' )
+           punt(x, lastline)
+       } 
+       '
+  

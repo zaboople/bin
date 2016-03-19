@@ -26,6 +26,7 @@ function ssh() {
   fi
   git clone git@$host:$2/$3.git
 }
+
 if [[ $1 == -help || $1 == --help ]]; then
   usage
 elif [[ $1 == -https ]]; then

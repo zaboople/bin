@@ -1,0 +1,3 @@
+xxx=$(docker ps | egrep "$@" | head -1)
+echo "Trying $xxx"
+echo $xxx | getcol 1 | xargs docker logs

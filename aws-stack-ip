@@ -1,0 +1,1 @@
+aws ec2 describe-instances --filter Name=tag-value,Values=$1 Name=instance-state-name,Values=running | jq -r '.Reservations[].Instances[0].NetworkInterfaces[0].PrivateIpAddresses[0].PrivateIpAddress'

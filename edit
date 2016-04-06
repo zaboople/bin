@@ -1,0 +1,15 @@
+for file in "$@"
+do
+  if [[ ! -e "$file" ]]; then
+    echo -n "$file does not exist; create it? "
+    read answer
+    if [[ $answer == y* || $answer == Y* ]]; then
+      touch "$file"
+    else
+      echo "Then I give up"
+      exit 1
+    fi
+  fi
+done
+
+"$EDITOR" "$@"

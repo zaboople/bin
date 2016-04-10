@@ -12,4 +12,5 @@ do
   fi
 done
 
-"$EDITOR" "$@"
+echo "$@"
+"$MYEDITOR" "$@"

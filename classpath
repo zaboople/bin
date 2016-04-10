@@ -4,21 +4,21 @@ function usage() {
 }
 
 delimiter=":"
+if [[ $(uname) == *CYGWIN* || $(uname) == *Cygwin* ]]; then
+  delimiter=";"
+fi
 stdin="no"
 reset="no"
 debug="no"
 
 while [[ $1 == -* ]]; do
-  if [[ $1 == "-reset" ]]; then
+  if [[ $1 == "-reset" || $1 == "--reset" ]]; then
     reset="yes"
     shift
-  elif [[ $1 == "-stdin" ]]; then
+  elif [[ $1 == "-stdin" || $1 == "--stdin" ]]; then
     stdin="yes"
     shift
-  elif [[ $1 == "-debug" ]]; then
-    debug="yes"
-    shift
-  elif [[ $1 == -h* ]]; then
+  elif [[ $1 == -h* || $1 == --h* ]]; then
     usage
     exit 0
   else
@@ -29,20 +29,14 @@ while [[ $1 == -* ]]; do
 done
 
 firstYet="no"
-function firstDelim {
-  if [[ $first == "" ]]; then
-    echo -n $delimiter
-  fi
-  first=""
-}
 function chunk {
-  echo -n "export CLASSPATH="
+  echo -n "export CLASSPATH=\""
   if [[ $firstYet == "yes" ]]; then
-    echo -n '$CLASSPATH:'
+    echo -n '$CLASSPATH'$delimiter
   else
     firstYet="yes"
   fi
-  echo "$@"
+  echo "$@\";"
 }
 
 function doit() {

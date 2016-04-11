@@ -1,1 +1,2 @@
 find . -type f | egrep "$@" | xargs edit
+# This works terrible for python because you get .py and .pyc files

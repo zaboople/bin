@@ -1,0 +1,25 @@
+# Sometimes you realize something you didn't know,
+# and you didn't know you didn't know,
+# and you say:
+
+function ctrl_c() {
+  echo "h!"
+  exit 1
+}
+printf "\033c"
+trap ctrl_c INT
+echo
+while [[ 1 == 1 ]]; do
+  number=$RANDOM
+  sleep 0.001
+  let "number %= 3"
+  if [[ $number == 0 ]]; then
+    echo -n "0"
+  elif [[ $number == 1 ]]; then
+    echo -n "o"
+  elif [[ $number == 2 ]]; then
+    echo -n "O"
+  else
+    echo -n "broke"
+  fi
+done

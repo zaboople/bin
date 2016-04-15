@@ -1,16 +1,27 @@
-for file in "$@"
-do
-  if [[ $file != -* && ! -e "$file" ]]; then
-    echo -n "$file does not exist; create it? "
-    read answer
-    if [[ $answer == y* || $answer == Y* ]]; then
-      touch "$file"
-    else
-      echo "Then I give up"
-      exit 1
-    fi
-  fi
-done
+if [[ $1 == "-" ]]; then
 
-echo "$@"
-"$MYEDITOR" "$@"
+  file=$TEMP/$PPID$RANDOM
+  cat > $file
+  echo $file
+  "$MYEDITOR" "$file"
+
+else
+
+  for file in "$@"
+  do
+    if [[ $file != -* && ! -e "$file" ]]; then
+      echo -n "$file does not exist; create it? "
+      read answer
+      if [[ $answer == y* || $answer == Y* ]]; then
+        touch "$file"
+      else
+        echo "Then I give up"
+        exit 1
+      fi
+    fi
+  done
+
+  echo "$@"
+  "$MYEDITOR" "$@"
+
+fi

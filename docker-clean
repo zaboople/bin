@@ -1,1 +1,8 @@
 docker rmi $(docker images -f "dangling=true" -q)
+if [[ $1 == "--force" ]]; then
+  docker rmi $(docker images -f "dangling=true" -q) 2>&1 \
+    | egrep 'Failed to remove image' \
+    | perl -pe 's/.*image is being used by stopped container//' \
+    | xargs docker rm
+  docker rmi $(docker images -f "dangling=true" -q)
+fi

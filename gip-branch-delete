@@ -3,11 +3,30 @@ function usage() {
   echo ""
 }
 
-if [[ $1 == -r* || $1 == --r* ]]; then
-  shift
-  git push origin --delete "$@"
-  echo ""
-  git branch -dr origin/$1
-  echo ""
+if [[ $1 == -h* || $1 == --h* ]]; then
+  echo "Usage: gip-branch-delete [-r|--remote] [--force]"
+  echo "  --remote: Attempt to delete from the server you push to. "
+  exit 1
 fi
-gip-guess-branch "$@" && git branch -d "$@"
+
+theD="d"
+
+while [[ $1 != "" ]]; do
+  if [[ $1 == "--force" ]]; then
+    theD="D"
+    shift
+  elif [[ $1 == -r* || $1 == --r* ]]; then
+    shift
+    remote=true
+  else
+    if [[ $remote ]]; then
+      echo "\nPush origin $1 :"
+      git push origin --delete "$1"
+      echo "\nBranch -$theD -r $1 :"
+      git branch -$theD -r origin/$1
+    fi
+    echo "\nDelete local:"
+    git branch -$theD "$1"
+    shift
+  fi
+done

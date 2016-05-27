@@ -5,17 +5,22 @@ function usage() {
 }
 
 egrep '^(\+\+\+|\-\-\-) ' \
- | egrep -v '^--- /dev/null$' \
  | perl -pe 's/^(\+\+\+|\-\-\-) (a|b)\///' \
  | gawk 'BEGIN {p1=""; p2=""; count=0;}{
   if (p1=="")
     p1=$0
   else
-  if (p1!=$0) {
-    print "NEW "p1
-    p1=$0
+  if (p1 == "--- /dev/null") {
+    print "NEW "$0
+    p1=""
   }
-  else {
+  else
+  if ($0 == "+++ /dev/null") {
+    print "DEL "p1
+    p1=""
+  }
+  else
+  if ($0 == p1) {
     print "CHG "p1
     p1=""
   }

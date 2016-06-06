@@ -40,6 +40,7 @@ function chunk {
 }
 
 function doit() {
+
   firstYet="no"
   if [[ $reset == "yes" ]]; then
     echo "export CLASSPATH="

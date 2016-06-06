@@ -3,7 +3,8 @@ if [[ $1 == "-" ]]; then
   file=$TEMP/Edit_$PPID$RANDOM
   cat > $file
   echo $file
-  "$MYEDITOR" "$file"
+  "$MYEDITOR" "$file" &
+  (sleep 5; rm $file) &
 
 else
 

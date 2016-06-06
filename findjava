@@ -1,1 +1,7 @@
-find . -type f -name '*.java' | egrep "$@"
+#!/bin/bash
+
+if [[ $1 == "" ]]; then
+  find . -type f -name '*.java'
+else
+  find . -type f -name '*.java' | egrep "$@"
+fi

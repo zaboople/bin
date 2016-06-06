@@ -1,3 +1,5 @@
-xxx=$(docker ps | egrep "$@" | head -1)
+greppy=$1
+xxx=$(docker ps | egrep "$greppy" | head -1)
 echo "Trying $xxx"
-echo $xxx | getcol 1 | xargs docker logs --tail=5000
+shift
+echo $xxx | getcol 1 | xargs docker logs "$@"

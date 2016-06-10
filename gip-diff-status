@@ -24,4 +24,6 @@ egrep '^(\+\+\+|\-\-\-) ' \
     print "CHG "p1
     p1=""
   }
+  else
+    print "ERROR! "p1" "$0
 } END {if (p1 != "") print "NEW "p1}'

@@ -1,23 +1,23 @@
 function mainStatus() {
-  git status | egrep '\t' | sed 's/^	//'
+  git status | egrep '\t' | sed 's/^	//' | sed 's/^both modified:/CONFLICT:/'
 }
 function filesOnly() {
-  sed 's/modified: *//' | sed 's/new file: *//' | sed 's/deleted: *//'
+  sed 's/modified: *//' | sed 's/new file: *//' | sed 's/deleted: *//' | sed 's/CONFLICT: *//'
 }
 
 if [[ $1 == -h* || $1 == --h* ]]; then
   echo "Usage: gip-status [--f | -f] "
-  echo "  --f : Shows files only without deleted/modified/added markers"
+  echo "  --f : Show deleted/modified/added markers"
   exit 1
 fi
 
 if [[ $1 == -f* || $1 == --f* ]]; then
-  mainStatus | filesOnly
-else
   mainStatus | sed 's/new file: */added:	    /' |\
     gawk '{
       if ($2 == "")
         printf "NEW:\t"
       print $0
     }'
+else
+  mainStatus | filesOnly
 fi

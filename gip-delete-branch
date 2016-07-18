@@ -2,10 +2,4 @@ function usage() {
   echo ""
   echo ""
 }
-
-if [[ $1 == -r* || $1 == --r* ]]; then
-  shift
-  git push origin --delete "$@"
-  echo ""
-fi
-gip-guess-branch "$@" && git branch -d "$@"
+gip-branch-delete "$@"

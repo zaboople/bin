@@ -1,11 +1,10 @@
 function usage() {
-  echo ""
-  echo ""
+  echo "Usage: gip-branch-delete [-r|--remote] [--force]"
+  echo "  --remote: Attempt to delete from the server you push to. "
 }
 
 if [[ $1 == -h* || $1 == --h* ]]; then
-  echo "Usage: gip-branch-delete [-r|--remote] [--force]"
-  echo "  --remote: Attempt to delete from the server you push to. "
+  usage
   exit 1
 fi
 

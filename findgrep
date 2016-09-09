@@ -1,1 +1,1 @@
-find . | egrep "$@"
+find . -type f | egrep "$@"

@@ -1,9 +1,12 @@
 function usage() {
-  echo "Usage: gip-branch-delete [-r|--remote] [--force]"
+  echo ""
+  echo "Usage: gip-branch-delete [-r|--remote] [-f|--force]"
   echo "  --remote: Attempt to delete from the server you push to. "
+  echo "  --force: When git fights back, tell it to shut up and do it. "
+  echo ""
 }
 
-if [[ $1 == -h* || $1 == --h* ]]; then
+if [[ $1 == -h* || $1 == --h* || $1 == "" ]]; then
   usage
   exit 1
 fi
@@ -11,7 +14,7 @@ fi
 theD="d"
 
 while [[ $1 != "" ]]; do
-  if [[ $1 == "--force" ]]; then
+  if [[ $1 == -f || $1 == "--force" ]]; then
     theD="D"
     shift
   elif [[ $1 == -r* || $1 == --r* ]]; then

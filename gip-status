@@ -1,5 +1,6 @@
 function mainStatus() {
-  git status | egrep '\t' | sed 's/^	//' | sed 's/^both modified:/CONFLICT:/'
+  git status | egrep '\t' | sed 's/^	//' | sed 's/^both modified:/CONFLICT:/' |\
+    perl -pe 's/\s*renamed:\s*(.*)(\->)\s*(.*)/deleted: $1\nnew file: $3/'
 }
 function filesOnly() {
   sed 's/modified: *//' | sed 's/new file: *//' | sed 's/deleted: *//' | sed 's/CONFLICT: *//'
@@ -12,6 +13,7 @@ if [[ $1 == -h* || $1 == --h* ]]; then
 fi
 
 if [[ $1 == -f* || $1 == --f* ]]; then
+  shift
   mainStatus | sed 's/new file: */added:	    /' |\
     gawk '{
       if ($2 == "")

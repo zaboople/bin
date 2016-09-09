@@ -1,1 +1,6 @@
-findfiles "$@" | fgrep -v '/.git/'
+if [[ $1 == "-print0" || $1 == "-0" || $1 == "--null" ]]; then
+  shift
+  findfiles "$@" | fgrep -v '/.git/' | null-delimit
+else
+  findfiles "$@" | fgrep -v '/.git/'
+fi

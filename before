@@ -2,7 +2,7 @@ find=""
 include=0
 while [[ $1 != "" ]]; do
   if [[ $1 == -h* ]]; then
-    echo "Usage: after [-include] <regex> "
+    echo "Usage: before [-include] <regex> "
     exit 0
   elif [[ $1 == -i* ]]; then
     include=1
@@ -24,11 +24,9 @@ gawk '
     include='$include'
   }
   {
-    if (found)
-      print $0
-    else {
+    if (!found) {
       found=match($0, "'$find'")
-      if (found && include)
+      if ((!found) || include)
         print $0
     }
   }

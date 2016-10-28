@@ -5,7 +5,7 @@ if [[ $1 == "-" ]]; then
   cat > $file
   echo $file
   "$MYEDITOR" "$file" &
-  (sleep 5; rm $file) &
+  (sleep 25; rm $file) &
 
 else
 

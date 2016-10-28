@@ -1,1 +1,1 @@
-find . -name '*.java' | egrep "$@" | xargs edit
+findjava "$@" | xargs edit

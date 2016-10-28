@@ -1,0 +1,1 @@
+findfiles  | egrep -v '(/\.git/|/target/)' | null-delimit | xargs -0 egrep "$@"

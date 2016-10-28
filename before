@@ -20,10 +20,11 @@ gawk '
   BEGIN {
     found=0
     include='$include'
+    find = "'"$find"'"
   }
   {
     if (!found) {
-      found=match($0, "'$find'")
+      found=match($0, find)
       if ((!found) || include)
         print $0
     }

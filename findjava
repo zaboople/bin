@@ -1,8 +1,11 @@
-#!/bin/bash
+# General purpose function to grep or cat
+extension='*.java'
+function gerp() {
+  if [[ $1 == "" ]]; then
+    cat;
+  else
+    egrep "$@";
+  fi
+}
 
-if [[ $1 == "" ]]; then
-  find . -type f -name '*.java'
-else
-  find . -type f -name '*.java' | egrep "$@"
-fi
-
+find . -type f -name "$extension" | gerp "$@" | sort

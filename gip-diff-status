@@ -6,7 +6,7 @@ function usage() {
 
 egrep '^(\+\+\+|\-\-\-) ' \
  | perl -pe 's/^(\+\+\+|\-\-\-) (a|b)\///' \
- | gawk 'BEGIN {p1=""; p2=""; count=0;}{
+ | gawk 'BEGIN {p1=""; count=0;}{
   if (p1=="")
     p1=$0
   else
@@ -24,6 +24,8 @@ egrep '^(\+\+\+|\-\-\-) ' \
     print "CHG "p1
     p1=""
   }
-  else
-    print "ERROR! "p1" "$0
+  else {
+    print "MOVE "p1" "$0
+    p1 = ""
+  }
 } END {if (p1 != "") print "NEW "p1}'

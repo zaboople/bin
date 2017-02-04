@@ -1,1 +1,1 @@
-findjava "$@" | xargs edit
+findjava "$@" | while read x; do edit "$x"; done

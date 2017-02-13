@@ -1,8 +1,28 @@
-docker rmi $(docker images -f "dangling=true" -q)
-if [[ $1 == "--force" ]]; then
-  docker rmi $(docker images -f "dangling=true" -q) 2>&1 \
-    | egrep 'Failed to remove image' \
-    | perl -pe 's/.*image is being used by stopped container//' \
-    | xargs docker rm
-  docker rmi $(docker images -f "dangling=true" -q)
-fi
+# My tidy and complain-free docker cleany-upper:
+
+# Remove useless images (Created?):
+echo "Deleting stale images..."
+docker ps -a --format '{{.Names}} Status={{.Status}}' | \
+  egrep 'Status=(Created|Exited|Dead)' | \
+  (while read -a item; do
+    docker rm $item;
+    done
+  )
+
+# Remove "literally" dangling images:
+echo "Deleting dangling images..."
+docker images --filter "dangling=true" -q | \
+  (while read -a item; do
+    docker rmi $item;
+    done
+  )
+
+# Remove "dangling" volumes and skip (egrep) not-actually-dangling volumes:
+echo "Deleting volumes..."
+docker volume ls --filter "dangling=true" -q \
+   |  egrep '[0-9,a-f]{64}' \
+   | (while read -a item; do
+        docker volume rm $item;
+        done
+      )
+

@@ -23,7 +23,9 @@ else
     fi
   done
 
-  echo "$@"
-  "$MYEDITOR" "$@"
+  if [[ "$@" != "" ]]; then
+    echo "Editing... $@"
+    "$MYEDITOR" "$@"
+  fi
 
 fi

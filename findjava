@@ -1,5 +1,26 @@
 # General purpose function to grep or cat
-extension='*.java'
+
+
+# HELP:
+if [[ $1 == --h* ||  $1 == -h* ]]; then
+  echo "Usage: findjava [--import <chopoff>] [regex]"
+  echo "  [regex] "
+  echo "      The names of files to grep for"
+  echo "  --import <chopoff> "
+  echo "       Chop <chopoff> off the beginning of the path, "
+  echo "       then convert the rest into an import statement "
+  exit
+fi
+
+# CHECK INPUTS:
+if [[ $1 == "--import" ]]; then
+  import=1
+  shift
+  import_skip="$1"
+  shift
+fi
+
+
 function gerp() {
   if [[ $1 == "" ]]; then
     cat;
@@ -8,4 +29,16 @@ function gerp() {
   fi
 }
 
-find . -type f -name "$extension" | gerp "$@" | sort
+function imports() {
+  if [[ $1 == "" ]]; then
+    cat
+  else
+    perl -pe 's|'$1'(.*)|$1|' \
+      | perl -pe 's|(.*).java|import $1;|' \
+      | tr '/' '.'
+  fi
+}
+
+extension='*.java'
+
+find . -type f -name "$extension" | gerp "$@" | imports "$import_skip" | sort

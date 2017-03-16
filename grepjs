@@ -1,0 +1,1 @@
+find '.' -type f '(' -name '*.js' -o -name '*.jsx' ')' -print0 | xargs -0 egrep "$@"

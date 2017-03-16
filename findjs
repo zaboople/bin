@@ -1,0 +1,23 @@
+# General purpose function to grep or cat
+if [[ $1 == "--skip-node" ]]; then
+  skip_node=1
+  shift
+fi
+
+function skipNode() {
+  if [[ $skip_node ]]; then
+    fgrep -v './node_modules/';
+  else
+    cat;
+  fi
+}
+function gerp() {
+  if [[ $1 == "" ]]; then
+    cat;
+  else
+    egrep "$@";
+  fi
+}
+
+
+find '.' -type f '(' -name '*.js' -o -name '*.jsx' ')' | grep -v './build/' | skipNode | gerp "$@"

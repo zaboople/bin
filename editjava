@@ -1,1 +1,1 @@
-findjava "$@" | while read x; do edit "$x"; done
+findjava "$@" | (while read x; do edit "$x"; done)

@@ -1,0 +1,3 @@
+docker run -p 5432:5432 -d --env POSTGRES_USER=myuser --env POSTGRES_PASSWORD=mypass "postgres:9.4"
+echo "export PGPASSWORD=mypass"
+echo "psql -h localhost -p 5432 -U myuser -d postgres"

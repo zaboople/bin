@@ -1,0 +1,8 @@
+delimiter="$1"
+
+gawk -v DELIM=$delimiter 'BEGIN {first=1} {
+  if (!first)
+    printf(DELIM);
+  first=false;
+  printf($0);
+} END {print("");}'

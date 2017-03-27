@@ -1,0 +1,18 @@
+#!/bin/bash -e
+# Converts a list of java names to json map keys.
+
+echo "{"
+
+# Assume java type is first, name second, get latter
+# Replace Upper with _lower
+# Strip out punctuation
+# Double-quote the name
+# Put a colon at the end
+# Delimit with comma-newline
+perl -pe 's/([A-Z])/_\l$1/g' \
+  | perl -pe 's/(;|,)//g' \
+  | dblquote \
+  | perl -pe 's/(.*)/$1: ""/' \
+  | delimit ',\n'
+
+echo "}"

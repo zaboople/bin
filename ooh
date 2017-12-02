@@ -3,23 +3,21 @@
 # and you say:
 
 function ctrl_c() {
-  echo "h!"
-  exit 1
+  echo -n "h!"
+  exit 0
 }
 printf "\033c"
 trap ctrl_c INT
-echo
 while [[ 1 == 1 ]]; do
   number=$RANDOM
   sleep 0.001
-  let "number %= 3"
+  let "number %= 2"
   if [[ $number == 0 ]]; then
-    echo -n "0"
+    echo -n "O"
   elif [[ $number == 1 ]]; then
     echo -n "o"
-  elif [[ $number == 2 ]]; then
-    echo -n "O"
   else
-    echo -n "broke"
+    echo -n "broken!"
+    exit 1
   fi
 done

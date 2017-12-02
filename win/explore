@@ -1,0 +1,4 @@
+x="'"
+cygpath -aw "$@" \
+  | gawk '{print "'$x'"$0"'$x'"}' \
+  | xargs explorer

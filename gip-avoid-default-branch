@@ -1,0 +1,7 @@
+default_branch=$(git remote show origin | fgrep '  HEAD branch: ' | gawk -F 'HEAD branch:' '{print $2}'  | trim)
+branch=$(gip-branch)
+echo "$default_branch"  "$branch"
+if [[ "$default_branch" == "$branch" && "$1" != "--force" ]]; then
+  echo "NO WAY am I letting you push $branch, at least not unless you --force me to."
+  exit 1
+fi

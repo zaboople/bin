@@ -1,9 +1,6 @@
-bra=$(gip-branch)
-if [[ $bra == "master" && $1 != "--force" ]]; then
-  echo "NO WAY am I letting you push master, at least not unless you --force me to."
-  exit 1
-fi
+gip-avoid-default-branch "$1" || exit 1
 
+bra=$(gip-branch)
 echo -n "Push \"$bra\"? "
 read yn
 

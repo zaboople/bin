@@ -1,0 +1,4 @@
+git remote show origin \
+  | fgrep '  HEAD branch: ' \
+  | gawk -F 'HEAD branch:' '{print $2}' \
+  | trim

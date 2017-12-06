@@ -8,11 +8,7 @@ if [[ $1 == "--force" ]]; then
   shift
 fi
 
-bra=$(gip-branch)
-if [[ $bra == "master" && $force != "--force" ]]; then
-  echo "NO WAY am I letting you add to master, at least not unless you --force me to."
-  exit 1
-fi
+gip-avoid-default-branch "$force" || exit 1
 
 if [[ $1 == "" ]]; then
   echo "Need a commit message"

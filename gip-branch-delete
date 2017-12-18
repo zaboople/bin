@@ -22,12 +22,12 @@ while [[ $1 != "" ]]; do
     remote=true
   else
     if [[ $remote ]]; then
-      echo "\nPush origin $1 :"
+      echo -e "\nPush origin $1 :"
       git push origin --delete "$1"
-      echo "\nBranch -$theD -r $1 :"
+      echo -e "\nBranch -$theD -r $1 :"
       git branch -$theD -r origin/$1
     fi
-    echo "\nDelete local:"
+    echo -e "\nDelete local:"
     git branch -$theD "$1"
     shift
   fi

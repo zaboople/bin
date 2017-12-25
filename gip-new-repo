@@ -1,0 +1,16 @@
+if [[ $1 == "" || $1 == "-help" ]]; then
+  echo "Usage: gip-new-repo <remoteURL>"
+  echo "(use gip-url to figure out the URL if necessary)"
+  exit 1
+fi
+remoteURL="$1"
+git init
+git remote add origin "$remoteURL"
+git add .
+git commit -m "New repo"
+git remote -v
+echo ""
+echo "I'm not actually pushing this, because that would be a lie."
+echo "If you're using github, you need to go to github and create the repo."
+echo "You don't have to import files or anything. Just create it."
+echo "Then you can do 'git push origin master' from this directory."

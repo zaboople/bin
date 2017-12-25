@@ -1,0 +1,13 @@
+#!/bin/bash
+function change() {
+  x="'"
+  cygpath -aw "$@" \
+    | gawk '{print "'$x'"$0"'$x'"}' 
+}
+if [[ $1 == "" ]]; then
+  while read line; do
+    change $line 
+  done
+else
+  change "$@"
+fi

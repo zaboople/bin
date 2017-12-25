@@ -1,5 +1,1 @@
-function usage() {
-  echo ""
-  echo ""
-}
 gip-branch-delete "$@"

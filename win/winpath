@@ -1,9 +1,15 @@
 #!/bin/bash
 function change() {
-  x="'"
+  x=$quote
   cygpath -aw "$@" \
     | gawk '{print "'$x'"$0"'$x'"}' 
 }
+
+quote="'"
+if [[ $1 == -q ]]; then
+    quote=""
+    shift
+fi
 if [[ $1 == "" ]]; then
   while read line; do
     change $line 

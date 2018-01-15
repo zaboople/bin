@@ -1,0 +1,3 @@
+#!/bin/bash
+tempfile=$TEMP/whichclip$$
+which "$@" | winpath | sed 's|\\|\\\\|g' | (read line; echo "$line"; echo $line | clip)

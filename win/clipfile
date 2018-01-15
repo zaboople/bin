@@ -1,10 +1,9 @@
 #!/bin/bash
 tempfile=$TEMP/clipfile$$_$RANDOM
+touch $tempfile
 winpath -q | sed 's|\\|\\\\|g' | ( while read line; do
-    echo $line
-    echo $line >> $tempfile
-done)
-cat $tempfile | clip
-
-
-
+        echo $line
+        echo $line >> $tempfile
+    done
+    cat $tempfile | clip
+)

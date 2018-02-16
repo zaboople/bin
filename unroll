@@ -2,7 +2,7 @@
 if [[ $1 == "-help" ]]; then
   echo "Usage: Unroll [-sep expr]"
   exit
-fi 
+fi
 
 if [[ $1 == -sep* ]]; then
   shift;
@@ -13,11 +13,13 @@ elif [[ $1 == -F  ]]; then
   separator="-F$@"
 elif [[ $1 == -F*  ]]; then
   separator="$@"
+else
+  separator="-F$@"
 fi
 
 
 if [[ $separator != "" ]]; then
-  awk $separator '{for (i=1; i<=NF; i++) print $i;}' 
+  awk $separator '{for (i=1; i<=NF; i++) print $i;}'
 else
-  awk '{for (i=1; i<=NF; i++) print $i;}' 
+  awk '{for (i=1; i<=NF; i++) print $i;}'
 fi

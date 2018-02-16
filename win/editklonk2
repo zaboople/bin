@@ -1,0 +1,10 @@
+#!/bin/bash
+# An alternate way to feed files to klonk - just dump the file names in klonk's "watch" directory.
+for name in "$@"
+  do
+  homeo=$(cygpath -u $USERPROFILE)
+  container=$homeo/klonk/watch/bash_$$$RANDOM
+  # Dunno why I need an echo but I do... maybe it's just timing with the file getting read too soon.
+  fixedname=$(winpath -q "$name")
+  echo "$fixedname" > $container
+  done

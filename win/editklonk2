@@ -1,10 +1,17 @@
 #!/bin/bash
 # An alternate way to feed files to klonk - just dump the file names in klonk's "watch" directory.
+if [[ $KLONK_HOME != "" ]]; then
+  homeo="$KLONK_HOME"
+else
+  homeo="$(cygpath -u $USERPROFILE)/klonk"
+fi
+klonkwatch="$homeo/watch/"
+mkdir -p "$klonkwatch"
+
 for name in "$@"
   do
-  homeo=$(cygpath -u $USERPROFILE)
-  container=$homeo/klonk/watch/bash_$$$RANDOM
+  container="$klonkwatch/bash_$$$RANDOM"
   # Dunno why I need an echo but I do... maybe it's just timing with the file getting read too soon.
   fixedname=$(winpath -q "$name")
-  echo "$fixedname" > $container
+  echo "$fixedname" > "$container"
   done

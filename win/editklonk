@@ -1,2 +1,8 @@
 #!/bin/bash
-winpath "$@" | xargs klonk
+if [[ $KLONK_HOME != "" ]]; then
+  mkdir -p "${KLONK_HOME}"
+  klonkhome="$(cygpath -w $KLONK_HOME)"
+  winpath "$@" | xargs klonk -home "$klonkhome" &
+else
+  winpath "$@" | xargs klonk &
+fi

@@ -1,16 +1,21 @@
-if [[ $1 == "--force" ]]; then
-  force=$1
-  shift
+while [[ $1 != "" ]]; do
+  if [[ $1 == "--force" ]]; then
+    force=$1
+    shift
+  elif [[ $1 == "-m" ]]; then
+    #You don't need a -m but if you do so we'll assume you forgot
+    shift
+  else
+    message="$1"
+    shift
+  fi
+done
+
+if [[ $message == "" ]]; then
+    echo "Need a commit message"
+    exit 1
 fi
 gip-avoid-default-branch "$force" || exit 1
 
-if [[ $1 == "-m" ]]; then
-  #You don't need a -m but if you do so we'll assume you forgot
-  shift
-fi
-if [[ $1 == "" ]]; then
-  echo "Need a commit message"
-  exit 1
-fi
 git status
-git commit -m "$@" && gip-push-branch $force
+git commit -m "$message" && gip-push-branch $force

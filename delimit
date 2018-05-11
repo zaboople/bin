@@ -1,4 +1,6 @@
 delimiter="$1"
+prefix=""
+suffix=""
 
 gawk -v DELIM="$delimiter" 'BEGIN {first=1} {
   if (!first)

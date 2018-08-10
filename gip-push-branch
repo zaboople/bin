@@ -1,8 +1,25 @@
-gip-avoid-default-branch "$1" || exit 1
+CONFIRM=true
+FORCE=
+for argg in "$@"
+  do
+    if [[ $argg == "--yes" || $argg == "-yes" ]]; then
+        echo -e "\nOkay I won't ask for confirmation...!\n"
+        yn=yes
+        unset CONFIRM
+    elif [[ $argg == "--force" || $argg == "-force" ]]; then
+        FORCE="--force"
+    fi
+  done
+
+if [[ ! $FORCE ]]; then
+    gip-avoid-default-branch || exit 1
+fi
 
 bra=$(gip-branch)
-echo -n "Push \"$bra\"? "
-read yn
+if [[ $CONFIRM ]]; then
+    echo -n "Push \"$bra\"? "
+    read yn
+fi
 
 yn=$(echo $yn | gawk '{print tolower($0)}')
 if [[ $yn == y* ]]; then

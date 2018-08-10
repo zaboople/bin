@@ -1,21 +1,41 @@
+message=""
 while [[ $1 != "" ]]; do
   if [[ $1 == "--force" ]]; then
-    force=$1
+    force="--force"
+    shift
+  elif [[ $1 == "--yes" ]]; then
+    yes="--yes"
+    confirm="yes"
     shift
   elif [[ $1 == "-m" ]]; then
     #You don't need a -m but if you do so we'll assume you forgot
     shift
-  else
     message="$1"
     shift
+  elif [[ $message == "" ]]; then
+    message="$1"
+    shift
+  else
+    echo -e "\nDon't know what to do with: $1"
+    exit 1
   fi
 done
 
 if [[ $message == "" ]]; then
-    echo "Need a commit message"
-    exit 1
+  echo "Need a commit message"
+  exit 1
 fi
-gip-avoid-default-branch "$force" || exit 1
+
+if [[ ! $force ]]; then
+    gip-avoid-default-branch || exit 1
+fi
 
 git status
-git commit -m "$message" && gip-push-branch $force
+echo "Commit message: $message"
+if [[ ! $yes ]]; then
+    echo -n "Commit ? "
+    read confirm
+fi
+if [[ $confirm == y* || $confirm == Y* ]]; then
+  git commit -m "$message" && gip-push-branch --force $yes
+fi

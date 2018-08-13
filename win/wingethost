@@ -1,0 +1,14 @@
+#!/bin/bash
+function squirrel() {
+    ping -a -n 1 "$1" | grep 'Pinging' | gawk '{print $2}'
+}
+
+for arg in "$@"; do
+    squirrel "$arg"
+done
+if [[ ! $1 ]]; then
+    while read line; do
+      echo -en $line "\t"
+      squirrel "$line"
+    done;
+fi

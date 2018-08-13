@@ -9,6 +9,7 @@ fi
 
 having=' > 0 '
 nocount=""
+dototal="0"
 
 while [[ $1 != "" ]]; do
   if [[ $1 == -having ]]; then
@@ -18,13 +19,15 @@ while [[ $1 != "" ]]; do
   elif [[ $1 == -nocount ]]; then
     shift
     nocount=on
+  elif [[ $1 == -total ]]; then
+    shift
+    dototal="1"
   fi
 done
 
 
-
 sort | \
-  gawk -v "nocount=$nocount" '
+  gawk -v "nocount=$nocount" -v "dototal=$dototal" '
 
     function punt(count, line){
       if (nocount!="on")
@@ -33,10 +36,11 @@ sort | \
     }
 
     BEGIN{
-      x=-1; lastline=""
+      x=-1; total=0; lastline=""
     }
 
     {
+      total=total+1
       if (lastline != $0)  {
         if (x '"$having"' )
           punt(x, lastline)
@@ -51,5 +55,9 @@ sort | \
     END {
       if (x '"$having"' )
         punt(x, lastline)
+      if (dototal) {
+        print("--------")
+        print(total "\t->Total")
+      }
     }
   '

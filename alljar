@@ -1,0 +1,4 @@
+while read line; do
+    #echo "Checking $line"
+    jar tf $line | gawk -v "line=$line" '{print line": "$0}'
+done;

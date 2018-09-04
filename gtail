@@ -1,0 +1,51 @@
+if [[ $1 == -h* ]]; then
+  echo "Usage: gtail [-v] <# seconds> <file>"
+  echo "Tails file for the specified seconds and then stops."
+fi
+
+while [[ $1 ]]; do
+  if [[ $1 == -v* ]]; then
+    verbose=true
+    shift
+  elif [[ ! $seconds ]]; then
+    seconds=$1
+    shift
+  elif [[ ! $file ]]; then
+    file=$1
+    shift
+  else
+    echo "Unexpected: $1"
+    exit 1
+  fi
+done
+
+initWait=$seconds
+
+while [[ $initWait > 0 && ! -e $file ]];
+  do
+  if [[ $verbose ]]; then
+    echo "File does not exist yet..."
+  fi
+  let initWait-=1
+  sleep 1
+  done
+
+startline=0
+for (( i=$seconds; i > 0; i-- ))
+  do
+  endline=$(wc -l $file | getcol 1)
+  let endline+=1
+  let countlines=$endline-$startline
+  if [[ $countlines > 0  ]]; then
+    if [[ $verbose ]]; then
+      echo "tail -n +$startline $file | tail -$countlines"
+    fi
+    tail -n +$startline $file | tail -$countlines
+  fi
+  let startline=endline
+  if [[ $verbose ]]; then
+    echo "gtail: $i seconds left..."
+  fi
+  sleep 1
+  done
+

@@ -13,13 +13,13 @@ elif [[ $1 == -F  ]]; then
   separator="-F$@"
 elif [[ $1 == -F*  ]]; then
   separator="$@"
-else
+elif [[ $1 ]]; then
   separator="-F$@"
 fi
 
 
-if [[ $separator != "" ]]; then
-  awk $separator '{for (i=1; i<=NF; i++) print $i;}'
+if [[ $separator ]]; then
+  gawk $separator '{for (i=1; i<=NF; i++) print $i;}'
 else
-  awk '{for (i=1; i<=NF; i++) print $i;}'
+  gawk '{for (i=1; i<=NF; i++) print $i;}'
 fi

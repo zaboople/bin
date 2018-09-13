@@ -1,0 +1,14 @@
+if [[ $1 == -sep* ]]; then
+  shift;
+  separator="$1"
+  shift
+elif [[ $1 == -F  ]]; then
+  shift
+  separator="$2"
+elif [[ $1 ]]; then
+  separator="$1"
+else
+  separator=' '
+fi
+
+gawk -v separator="$separator" '{printf($0); printf(separator);}'

@@ -1,10 +1,12 @@
 delimiter="$1"
-prefix=""
-suffix=""
+prefix="$2"
+suffix="$3"
 
-gawk -v DELIM="$delimiter" 'BEGIN {first=1} {
+gawk -v DELIM="$delimiter" -v PREFIX="$prefix" -v SUFFIX="$suffix" 'BEGIN {first=1} {
   if (!first)
     printf(DELIM);
   first=false;
+  printf(PREFIX)
   printf("%s", $0);
+  printf(SUFFIX)
 } END {print("");}'

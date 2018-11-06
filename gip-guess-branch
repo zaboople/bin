@@ -7,23 +7,34 @@ function stripWhite() {
   perl -pe 's/(\* |^ *)//'
 }
 
-if [[ $1 == --help || $1 == "" ]]; then
+expr=".*"
+if [[ $1 == --help || $1 == "" ]]; then  
   usage
   exit
 elif [[ $1 == --all ]]; then
+  all=true
   shift
-  # Our regex is going to yank the typical remote/origin/ trash that shows up at the front:
-  # And since a branch can be both local and remote, sort -u
-  git branch -a | stripWhite | perl -pe 's|.*?/.*?/||' | sort -u | egrep "$@"
 elif [[ $1 == --remote ]]; then
+  remote=true
   shift
-  # This time it's just the origin/ that we strip:
-  git branch -r | stripWhite | perl -pe 's|.*?/||' | egrep "$@"
 elif [[ $1 == --* ]]; then
   echo
   echo "ERROR: Unrecognized: $1"
   echo
   usage
+  exit 1
 else
-  git branch | stripWhite | egrep "$@"
+  expr="$@"
+  shift
+fi
+
+if [[ $all ]]; then
+  # Our regex is going to yank the typical remote/origin/ trash that shows up at the front:
+  # And since a branch can be both local and remote, sort -u
+  git branch -a | stripWhite | perl -pe 's|.*?/.*?/||' | sort -u | egrep "$expr"
+elif [[ $remote ]]; then
+  # This time it's just the origin/ that we strip:
+  git branch -r | stripWhite | perl -pe 's|.*?/||' | egrep "$expr"
+else
+  git branch | stripWhite | egrep "$expr"
 fi

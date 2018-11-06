@@ -1,6 +1,6 @@
 function usage() {
   echo ""
-  echo "Usage: gip-branch-delete [-r|--remote] [-f|--force]"
+  echo "Usage: gip-branch-delete [-r|--remote] [-f|--force] <branch>"
   echo "  --remote: Attempt to delete from the server you push to. "
   echo "  --force: When git fights back, tell it to shut up and do it. "
   echo ""
@@ -21,14 +21,16 @@ while [[ $1 != "" ]]; do
     shift
     remote=true
   else
-    if [[ $remote ]]; then
-      echo -e "\nPush origin $1 :"
-      git push origin --delete "$1"
-      echo -e "\nBranch -$theD -r $1 :"
-      git branch -$theD -r origin/$1
-    fi
-    echo -e "\nDelete local:"
-    git branch -$theD "$1"
+    branch="$1"
     shift
   fi
 done
+
+if [[ $remote ]]; then
+  echo -e "\nPush origin $1 :"
+  git push origin --delete "$1"
+  echo -e "\nBranch -$theD -r $1 :"
+  git branch -$theD -r origin/$1
+fi
+echo -e "\nDelete local:"
+git branch -$theD "$1"

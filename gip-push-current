@@ -1,1 +1,1 @@
-gip-push "$@" $(gip-branch)
+gip-push --current "$@"

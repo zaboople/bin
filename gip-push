@@ -1,15 +1,17 @@
 function help() {
-    echo "Usage: gip-push [--force] [--yes] <branch-name>"
+    echo "Usage: gip-push [--force] [--current [--yes]] <branch-name>"
 }
 
-CONFIRM=true
 FORCE=
+
 for argg in "$@"
   do
-    if [[ $argg == "--yes" || $argg == "-yes" ]]; then
+    if [[ $argg == "--current" || $argg == "-current" ]]; then
+        CURRENT=yes
+        CONFIRM=yes
+    elif [[ $argg == "--yes" || $argg == "-yes" ]]; then
         echo -e "\nOkay I won't ask for confirmation...!\n"
-        yn=yes
-        unset CONFIRM
+        NO_CONFIRM=yes
     elif [[ $argg == "--force" || $argg == "-force" ]]; then
         FORCE="--force"
     elif [[ $argg == -h* || $argg == --h* ]]; then
@@ -25,6 +27,17 @@ for argg in "$@"
     fi
   done
 
+if [[ $CURRENT ]]; then
+    if [[ $bra ]]; then
+        echo "Error: Specified both --current and a branch: $bra"
+        help
+        exit 1
+    fi
+    bra=$(gip-branch)
+fi
+if [[ $NO_CONFIRM ]]; then
+    unset CONFIRM
+fi
 if [[ ! $bra ]]; then
     echo "Error: Need a branch"
     help
@@ -35,15 +48,14 @@ if [[ ! $FORCE ]]; then
     gip-avoid-default-branch || exit 1
 fi
 
-bra=$(gip-branch)
 if [[ $CONFIRM ]]; then
     echo -n "Push \"$bra\"? "
     read yn
+    yn=$(echo $yn | gawk '{print tolower($0)}')
+    if [[ $yn != y* ]]; then
+      echo 'Pfft, you weenie'
+      exit 0
+    fi
 fi
 
-yn=$(echo $yn | gawk '{print tolower($0)}')
-if [[ $yn == y* ]]; then
-  git push --set-upstream origin "$bra"
-else
-  echo 'Pfft, you weenie'
-fi
+git push --set-upstream origin "$bra"

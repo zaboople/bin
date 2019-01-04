@@ -1,3 +1,7 @@
+function help() {
+    echo "Usage: gip-push [--force] [--yes] <branch-name>"
+}
+
 CONFIRM=true
 FORCE=
 for argg in "$@"
@@ -8,8 +12,24 @@ for argg in "$@"
         unset CONFIRM
     elif [[ $argg == "--force" || $argg == "-force" ]]; then
         FORCE="--force"
+    elif [[ $argg == -h* || $argg == --h* ]]; then
+        help
+        exit 0
+    elif [[ $argg == -* ]]; then
+        echo "Error: Don't know what to do with: ${argg}"
+        exit 1
+    elif [[ ! $bra ]]; then
+        bra="$argg"
+    else
+        echo "Error: Don't know what to do with: $argg ... branch already specified as $bra"
     fi
   done
+
+if [[ ! $bra ]]; then
+    echo "Error: Need a branch"
+    help
+    exit 1
+fi
 
 if [[ ! $FORCE ]]; then
     gip-avoid-default-branch || exit 1

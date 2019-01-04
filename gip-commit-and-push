@@ -37,5 +37,5 @@ if [[ ! $yes ]]; then
     read confirm
 fi
 if [[ $confirm == y* || $confirm == Y* ]]; then
-  git commit -m "$message" && gip-push-branch --force $yes
+  git commit -m "$message" && gip-push-current --force $yes
 fi

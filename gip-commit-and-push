@@ -27,7 +27,7 @@ if [[ $message == "" ]]; then
 fi
 
 if [[ ! $force ]]; then
-    gip-avoid-default-branch || exit 1
+    gip-avoid-default-branch $(gip-branch) || exit 1
 fi
 
 git status

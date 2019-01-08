@@ -44,8 +44,10 @@ if [[ ! $bra ]]; then
     exit 1
 fi
 
+echo "Branch: $bra"
+
 if [[ ! $FORCE ]]; then
-    gip-avoid-default-branch || exit 1
+    gip-avoid-default-branch $bra || exit 1
 fi
 
 if [[ $CONFIRM ]]; then

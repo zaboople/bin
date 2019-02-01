@@ -8,25 +8,28 @@ function stripWhite() {
 }
 
 expr=".*"
-if [[ $1 == --help || $1 == "" ]]; then  
-  usage
-  exit
-elif [[ $1 == --all ]]; then
-  all=true
-  shift
-elif [[ $1 == --remote ]]; then
-  remote=true
-  shift
-elif [[ $1 == --* ]]; then
-  echo
-  echo "ERROR: Unrecognized: $1"
-  echo
-  usage
-  exit 1
-else
-  expr="$@"
-  shift
-fi
+while [[ $1 ]]; do
+    if [[ $1 == --help || $1 == "" ]]; then
+      usage
+      exit
+    elif [[ $1 == --all ]]; then
+      all=true
+      shift
+    elif [[ $1 == --remote ]]; then
+      remote=true
+      shift
+    elif [[ $1 == --* ]]; then
+      echo
+      echo "ERROR: Unrecognized: $1"
+      echo
+      usage
+      exit 1
+    else
+      expr="$@"
+      shift
+    fi
+done
+
 
 if [[ $all ]]; then
   # Our regex is going to yank the typical remote/origin/ trash that shows up at the front:

@@ -1,3 +1,4 @@
 touch "$@"
 chmod 755 "$@"
 edit "$@"
+echo "" > "$@"

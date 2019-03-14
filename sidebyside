@@ -1,3 +1,8 @@
+if [[ $1 == "--help" || $1 == -he* || ! $3 ]]; then
+    echo ""
+    echo "Usage: sidebyside <column-width> <file1> <file2>"
+    exit 1
+fi
 columns=$1
 shift
-pr -w $columns -m -t "$@" 
+pr -w $columns -m -t "$@"

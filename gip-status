@@ -1,1 +1,1 @@
-git status -s | getcol 2
+git status -s "$@" | getcol 2

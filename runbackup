@@ -1,0 +1,114 @@
+
+#Functions:
+function msg() {
+  echo -e $(date '+%H:%M:%S.%N')" $@"
+}
+function getBackupTo() {
+  backupTo="${BACKUP_TO}/$backupDateStamp"
+  echo "$backupTo"
+}
+function makeBackupFile() {
+  backupFile=${BACKUP_PREFIX}.zip
+  if [[ "$BACKUP_WORKING_DIR" ]]; then
+    workingFile="${BACKUP_WORKING_DIR}/${backupFile}"
+  else
+    workingFile="${BACKUP_FROM}/${backupFile}"
+  fi
+  cd "$BACKUP_FROM" || exit 1
+  rm -f "${workingFile}"
+  rm -f "${workingFile}.cpt"
+  msg "Source size (MB): \n$(du -sm $BACKUP_ITEMS)"
+  msg "Making zip file ${workingFile}..."
+  zip -r "${workingFile}" $BACKUP_ITEMS > /dev/null || exit 1
+  msg "Backup size (MB): \n"$(du -sm "${workingFile}")
+
+  msg 'Encrypting...'
+  echo "$password" | ccrypt -e -k - "${workingFile}" || exit 1
+  msg "Encrypted size (MB): \n"$(du -sm "${workingFile}.cpt") || exit 1
+
+  backupTo=$(getBackupTo)
+  mkdir -p $backupTo || exit 1
+  msg "Copying backup to $backupTo..."
+  rm -f "${backupTo}/${backupFile}"
+  rm -f "${backupTo}/${backupFile}.cpt"
+  cp "${workingFile}.cpt" "$backupTo" || exit 1
+  for name in $BACKUP_ITEMS
+    do
+    echo "$name" >> ${backupTo}/${backupFile}.contents.txt
+    done
+  du -sm ${backupTo}/*
+  rm "${workingFile}.cpt"
+}
+
+
+function init() {
+  if [[ ! $backupDateStamp ]]; then
+
+    #Password:
+    if [[ $BACKUP_PASS ]]; then
+      password=${BACKUP_PASS}
+    else
+      if [[ $OPEN_PASSWORD ]]; then
+        openpass="-s"
+      fi
+      printf 'Enter encryption password: '
+      read $openpass password || exit 1
+      echo ''
+    fi
+
+    # File names:
+    backupDateStamp=$(date +'%Y-%m-%d_%H-%M-%S')
+  fi
+}
+
+
+function checkConfig() {
+  if [[ ! $BACKUP_TO ]]; then
+    echo "Missing: BACKUP_TO"
+    exit 1
+  elif [[ ! $BACKUP_FROM ]]; then
+    echo "Missing: BACKUP_FROM"
+    exit 1
+  elif [[ ! $BACKUP_ITEMS ]]; then
+    echo "Missing: BACKUP_ITEMS"
+    exit 1
+  elif [[ ! $BACKUP_PREFIX ]]; then
+    echo "Missing: BACKUP_PREFIX"
+    exit 1
+  fi
+  msg "Configured: Back up to: $BACKUP_TO"
+  msg "Configured: From directory: $BACKUP_FROM"
+  msg "Configured: Back up items: $BACKUP_ITEMS"
+  msg "Configured: Backup file prefix: $BACKUP_PREFIX"
+}
+
+function readConfig() {
+  unset BACKUP_TO
+  unset BACKUP_FROM
+  unset BACKUP_ITEMS
+  unset BACKUP_PREFIX
+  source "$1" || exit 1
+  checkConfig
+}
+
+
+
+if [[ $1 ]]; then
+  echo "------------------------------"
+  while [[ $1 ]]; do
+    readConfig "$1"
+    shift
+    init || exit 1
+    makeBackupFile
+    echo "------------------------------"
+  done
+else
+  checkConfig
+  init || exit 1
+  echo "------------------------------"
+  makeBackupFile
+  echo "------------------------------"
+fi
+
+#Finish up diagnostics:
+msg 'Finished.'

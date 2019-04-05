@@ -8,18 +8,22 @@ function getBackupTo() {
   echo "$backupTo"
 }
 function makeBackupFile() {
+  if [[ ! $BACKUP_PREFIX ]]; then
+    BACKUP_PREFIX=$(echo $BACKUP_ITEMS | sed -r 's-( |/)--g')
+  fi
   backupFile=${BACKUP_PREFIX}.zip
   if [[ "$BACKUP_WORKING_DIR" ]]; then
     workingFile="${BACKUP_WORKING_DIR}/${backupFile}"
   else
     workingFile="${BACKUP_FROM}/${backupFile}"
   fi
+  echo "Backup file: $workingFile"
   cd "$BACKUP_FROM" || exit 1
   rm -f "${workingFile}"
   rm -f "${workingFile}.cpt"
   msg "Source size (MB): \n$(du -sm $BACKUP_ITEMS)"
   msg "Making zip file ${workingFile}..."
-  zip -r "${workingFile}" $BACKUP_ITEMS > /dev/null || exit 1
+  zip -r "${workingFile}" $BACKUP_ITEMS | grep -v adding  || exit 1
   msg "Backup size (MB): \n"$(du -sm "${workingFile}")
 
   msg 'Encrypting...'
@@ -48,12 +52,21 @@ function init() {
     if [[ $BACKUP_PASS ]]; then
       password=${BACKUP_PASS}
     else
-      if [[ $OPEN_PASSWORD ]]; then
-        openpass="-s"
-      fi
       printf 'Enter encryption password: '
-      read $openpass password || exit 1
-      echo ''
+      if [[ $OPEN_PASSWORD ]]; then
+        read password || exit 1
+        echo ''
+      else
+        read -s password || exit 1
+        echo ''
+        printf 'Confirm password: '
+        read -s confirm || exit 1
+        echo ''
+        if [[ $password != $confirm ]]; then
+          echo "Error: Passwords do not match"
+          exit 1
+        fi
+      fi
     fi
 
     # File names:
@@ -62,24 +75,39 @@ function init() {
 }
 
 
+function formatStuff() {
+  printf "  %-20s %-25s %-40s\n" "$@"
+}
+function formatStuff2() {
+  printf "  %-20s %-25s\n" "$@"
+}
+
+function help() {
+  echo "Required settings: "
+  formatStuff2 "BACKUP_TO"          "$BACKUP_TO"
+  formatStuff2 "BACKUP_FROM"        "$BACKUP_FROM"
+  formatStuff2 "BACKUP_ITEMS"       "$BACKUP_ITEMS"
+  echo "Optional settings: "
+  formatStuff "BACKUP_PREFIX"       "$BACKUP_PREFIX"       "(default: BACKUP_ITEMS w/ spaces/slashes removed)"
+  formatStuff "BACKUP_WORKING_DIR"  "$BACKUP_WORKING_DIR"  "(default: BACKUP_FROM)"
+  formatStuff "OPEN_PASSWORD"       "$OPEN_PASSWORD"       "(default: 0)"
+}
+
 function checkConfig() {
   if [[ ! $BACKUP_TO ]]; then
     echo "Missing: BACKUP_TO"
+    help
     exit 1
   elif [[ ! $BACKUP_FROM ]]; then
     echo "Missing: BACKUP_FROM"
+    help
     exit 1
   elif [[ ! $BACKUP_ITEMS ]]; then
     echo "Missing: BACKUP_ITEMS"
-    exit 1
-  elif [[ ! $BACKUP_PREFIX ]]; then
-    echo "Missing: BACKUP_PREFIX"
+    help
     exit 1
   fi
-  msg "Configured: Back up to: $BACKUP_TO"
-  msg "Configured: From directory: $BACKUP_FROM"
-  msg "Configured: Back up items: $BACKUP_ITEMS"
-  msg "Configured: Backup file prefix: $BACKUP_PREFIX"
+  help
 }
 
 function readConfig() {
@@ -92,8 +120,10 @@ function readConfig() {
 }
 
 
-
-if [[ $1 ]]; then
+if [[ $1 == -h* ]]; then
+  help
+  exit 0
+elif [[ $1 ]]; then
   echo "------------------------------"
   while [[ $1 ]]; do
     readConfig "$1"

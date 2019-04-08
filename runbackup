@@ -23,7 +23,7 @@ function makeBackupFile() {
   rm -f "${workingFile}.cpt"
   msg "Source size (MB): \n$(du -sm $BACKUP_ITEMS)"
   msg "Making zip file ${workingFile}..."
-  zip -r "${workingFile}" $BACKUP_ITEMS | grep -v adding  || exit 1
+  zip -r "${workingFile}" $BACKUP_ITEMS  || exit 1
   msg "Backup size (MB): \n"$(du -sm "${workingFile}")
 
   msg 'Encrypting...'

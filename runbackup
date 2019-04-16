@@ -119,6 +119,11 @@ function readConfig() {
   checkConfig
 }
 
+echo "Looking for needed software..."
+which zip || exit 1
+which ccrypt || exit 1
+echo "Found everything"
+echo ""
 
 if [[ $1 == -h* ]]; then
   help

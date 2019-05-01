@@ -1,0 +1,3 @@
+pathy=$(dirname $0)
+groovy $pathy/nginx-log-parse.groovy "$@"
+

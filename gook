@@ -1,0 +1,2 @@
+# A replacement for gawk that is easier
+groovy $(dirname $0)/gook.groovy "$@"

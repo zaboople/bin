@@ -1,6 +1,6 @@
 function usage() {
   echo ""
-  echo "Usage: gip-clone [-help] [-https|-ssh] <host> <user> <reponame>"
+  echo "Usage: gip-clone [-help] [-echo] [-https|-ssh] <host> <user> <reponame>"
   echo "  Assumes ssh by default unless you explicitly specify -https (or -ssh if you really want)"
   echo ""
   echo "Examples: "
@@ -10,37 +10,67 @@ function usage() {
   echo ""
 }
 function notEnough() {
-  if [[ $3 == "" ]]; then
+  if [[ ! $githost || ! $gituser || ! $gitrepo ]]; then
     echo ""
     echo "ERROR: Not enough arguments"
     usage
     exit 1
   fi
 }
-function ssh() {
-  notEnough "$@"
-  host=$1
-  echo $host
-  if [[ $host == "github" ]]; then
-    host="github.com"
-  fi
-  git clone git@$host:$2/$3.git
+function dossh() {
+    notEnough "$@"
+    if [[ $doecho ]]; then
+        echo "git clone git@$githost:$gituser/$gitrepo.git"
+    else
+        git clone git@$githost:$gituser/$gitrepo.git
+    fi
 }
 
-if [[ $1 == -help || $1 == --help ]]; then
-  usage
-elif [[ $1 == -https ]]; then
-  shift
-  notEnough "$@"
-  git clone https://$1/$2/$3.git
-elif [[ $1 == -ssh ]]; then
-  shift
-  ssh "$@"
-elif [[ $1 == -* ]]; then
-  echo ""
-  echo "ERROR: Invalid argument \"$1\" "
-  usage
-  exit 1
+while [[ $1 ]]; do
+    if [[ $1 == -help || $1 == --help ]]; then
+        help=1
+        shift
+    elif [[ $1 == -https ]]; then
+        https=1
+        shift
+    elif [[ $1 == -ssh ]]; then
+        ssh=1
+        shift
+    elif [[ $1 == -echo ]]; then
+        doecho=1
+        shift
+    elif [[ $1 == -* ]]; then
+        echo ""
+        echo "ERROR: Invalid argument \"$1\" "
+        usage
+        exit 1
+    elif [[ ! $githost ]]; then
+        githost="$1"
+        shift
+    elif [[ ! $gituser ]]; then
+        gituser=$1
+        shift
+    elif [[ ! $gitreport ]]; then
+        gitrepo=$1
+        shift
+    else
+        echo ""
+        echo "ERROR: Don't know what to do with: \"$1\" "
+        usage
+        exit 1
+    fi
+done
+
+
+if [[ $help ]]; then
+    usage
+elif [[ $https ]]; then
+    notEnough "$@"
+    if [[ $doecho ]]; then
+        echo "git clone https://$githost/$gituser/$gitrepo.git"
+    else
+        git clone https://$githost/$gituser/$gitrepo.git
+    fi
 else
-  ssh "$@"
+  dossh
 fi

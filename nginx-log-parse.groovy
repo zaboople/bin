@@ -2,6 +2,8 @@ import java.time.format.DateTimeFormatter
 import java.time.ZonedDateTime
 import java.util.regex.Pattern
 
+
+/** This is my *old* nginx log parser. The new one is generic, in log-parse.groovy. Haven't tested to see which performs better. */
 public class Kersplat {
 
     //////////////////////////////////
@@ -31,10 +33,9 @@ public class Kersplat {
         new MetaCol("Bytes-sent", SPACE, 2),
         new MetaCol("Referer", DBLQ, 3),
         new MetaCol([title: "User-agent", checkChar: DBLQ, skipafter: 3, printQuote: true]),
-        new MetaCol("Gzip-ratio", DBLQ)
+        new MetaCol("X-Forwarded-For", DBLQ)
     ]
     final static Map metaColsByName=metaCols.collectEntries{[(it.title.toLowerCase()): it]}
-    final static Set metaColSet=metaColsByName.keySet()
     final static MetaCol metaColDate=metaCols.find{it.title=="Date"}
 
 

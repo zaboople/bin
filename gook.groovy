@@ -1,6 +1,61 @@
 import java.util.regex.Pattern
 
+public static def main(String[] args) {
+    boolean help=false
+    String templateFile=null
+    String templateInput=null
+    String splitRegex="( |\t)"
+    for (int i=0; i<args.length; i++) {
+        if (args[i].startsWith("-help") || args[i].startsWith("--help"))
+            help=true
+        else
+        if (args[i].startsWith("-f") || args[i].startsWith("--f"))
+            templateFile=args[++i]
+        else
+        if (args[i].startsWith("-F")) {
+            if (args[i].equals("-F"))
+                splitRegex=args[++i]
+            else
+                splitRegex=args[i].substring(2)
+        }
+        else
+        if (templateInput==null)
+            templateInput=args[i]
+        else {
+            System.err.println("Don't know what to do with: ${args[i]}")
+            System.exit(1)
+        }
+    }
+    if (help) {
+        help()
+        return
+    }
+    if (templateInput==null && templateFile==null) {
+        System.err.println("Error: No template")
+        System.err.println("Use -help for more info")
+        System.exit(1)
+        return
+    }
 
+    processLines(
+        parseTemplate(
+            templateFile==null
+                ?templateInput
+                :new File(templateFile).getText()
+        ),
+        Pattern.compile(splitRegex)
+    )
+}
+
+def processLines(List template, Pattern splitPattern) {
+    new BufferedReader(new InputStreamReader(System.in)).eachLine{line->
+        String[] items = splitPattern.split(line).findAll{"" != it}
+        if (items.length!=0)
+            for (x in template)
+                x.call(items)
+        println()
+    }
+}
 
 def parseTemplate(String templateStr) {
     List template=[]
@@ -35,7 +90,7 @@ def parseTemplate(String templateStr) {
         int i2=templateStr.indexOf("\$")
         int i3=templateStr.indexOf("\\\$")
         int i4=templateStr.indexOf("\\\\\$")
-        println("$i1 $i2 $i3 $i4 >$templateStr")
+        //("$i1 $i2 $i3 $i4 >$templateStr")
         if (i1+i2==-2) {
             break
         }
@@ -71,46 +126,38 @@ def parseTemplate(String templateStr) {
     template
 }
 
-def doRunRun(String[] args) {
-    List template=parseTemplate(args[0])
-    BufferedReader br=new BufferedReader(new InputStreamReader(System.in))
-    String line
-    while ((line=br.readLine())!=null) {
-        String[] items = line.split(" ").findAll{"" != it}
-        if (items.length!=0)
-            for (x in template)
-                x.call(items)
-        println()
-    }
-}
-
-if (args.length==0 || args[0].startsWith("-help") || args[0].startsWith("--help")) {
+def help() {
     println("""
-        Usage: gook <template>
+        Usage:
+            gook <template>
+            gook -f <template-file>
 
         Gook is a gawk/awk replacement that allows you to just use a template with
         \$# syntax for indexed variables. For example:
 
-           cat myfile | gook 'First value is \$1, Second value is \$2'
+            cat myfile | gook 'First value is \$1, Second value is \$2'
 
         And of course you can do the "stricter" way of saying variable names:
 
-           cat myfile | gook 'First value is \${1}, Second value is \${2}'
+            cat myfile | gook 'First value is \${1}, Second value is \${2}'
 
         But how to escape the \$ symbol? With \\ of course:
 
-           cat myfile | gook 'Gimme all your \\\$\\\$\\\$. Also: First value is \$1, Second value is \$2'
+            cat myfile | gook 'Gimme all your \\\$\\\$\\\$. Also: First value is \$1, Second value is \$2'
 
         (You can escape the \\ itself with \\\\ if you actually want to put a
-         backslash in front of your variable because you're recursively making templates
-         or god knows what. But normally you can just leave backslashes as backslashes)
+         backslash in front of your dollar sign because you're recursively making templates
+         or heaven knows what. Otherwise just leave backslashes as backslashes)
 
-        But of course if you double-quote instead of single-quote, you'll need
+        But of course if you double-quote your template instead of single-quote, you'll need
         a \\ to escape your shell's parser:
 
-           cat myfile | gook "Gimme all your \\\$\\\$\\\$. Also: First value is \\\$1, Second value is \\\$2"
+            cat myfile | gook "Gimme all your \\\$\\\$\\\$. Also: First value is \\\$1, Second value is \\\$2"
+
+        Maybe just do this instead:
+
+            cat myfile | gook -f mytemplate.txt
 
     """.stripIndent())
-    return
 }
-doRunRun(args)
+

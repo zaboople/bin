@@ -1,5 +1,5 @@
 function help() {
-    echo "Usage: gip-push [--force] [--current [--yes]] <branch-name>"
+    echo "Usage: gip-push [--master] [--current [--yes]] <branch-name>"
 }
 
 FORCE=

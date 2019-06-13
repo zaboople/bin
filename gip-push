@@ -12,8 +12,8 @@ for argg in "$@"
     elif [[ $argg == "--yes" || $argg == "-yes" ]]; then
         echo -e "\nOkay I won't ask for confirmation...!\n"
         NO_CONFIRM=yes
-    elif [[ $argg == "--force" || $argg == "-force" ]]; then
-        FORCE="--force"
+    elif [[ $argg == "--master" || $argg == "-master" ]]; then
+        DO_DEFAULT_BRANCH="--master"
     elif [[ $argg == -h* || $argg == --h* ]]; then
         help
         exit 0
@@ -46,7 +46,7 @@ fi
 
 echo "Branch: $bra"
 
-if [[ ! $FORCE ]]; then
+if [[ ! $DO_DEFAULT_BRANCH ]]; then
     gip-avoid-default-branch $bra || exit 1
 fi
 

@@ -334,15 +334,18 @@ public class LogParser {
                     <expression>: A regex. Allows partial match, so "foo" matches "blahfoobar"; use "^foo\$" for
                         an exact match.
 
-                -count <day|hour|minute|second>: Measure hits per time interval
-                    Aggregates rows by day/hour/minute/second depending on input, and prints the rowcount for each interval.
-                    Note 1: Assumes that records are already sorted by date.
-                    Note 2: This will not show a "0" for missing intervals; e.g. if 9:08pm has hits, and 9:10pm has hits,
-                        but there are no entries for 9:09pm, then you won't see a count (of 0) for 9:09.
-
                 -original: Prints original log line
                     This prints the original log line at the end of every output line.
                     If you also provide "-cols" with no parameters, then the output will be purely the original log data.
+
+                -count <day|hour|minute|second>: Measure hits per time interval
+                    Aggregates rows by day/hour/minute/second depending on input, and prints the rowcount for each interval.
+                    Note 1: In case it isn't obvious, this won't work without a value for the "-date-format" parameter
+                    Note 2: Assumes that records are already sorted by date. If they aren't, you can always do a first pass
+                        with "-date-format xxxxxx -cols Date -original", run it through the system sort command, then
+                        run it back through on a second pass. Yeah we know that's stupid but it works.
+                    Note 2: This will not show a "0" for missing intervals; e.g. if 9:08pm has hits, and 9:10pm has hits,
+                        but there are no entries for 9:09pm, then you won't see a count (of 0) for 9:09.
 
             """.stripIndent()
         )

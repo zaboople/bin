@@ -25,7 +25,7 @@ public class LogParser {
         public String file;
         public boolean help=false
         public final List columns
-        public final Map regexes=[:]
+        public final List regexes=[]
         public String countBy=false
         public boolean originalFormat=false
         public String template
@@ -58,11 +58,7 @@ public class LogParser {
                 else if (checkArg("grep")) {
                     boolean matchNot=(checkNextArg("not") || checkNextArg("v")) && next()
                     while (isNextValue())
-                        regexes+=[
-                            (grabNext()): [
-                                matchNot: matchNot, regex: grabNext()
-                            ]
-                        ]
+                        regexes+=new MetaPattern(grabNext(), grabNext(), matchNot)
                 }
                 else if (file==null && isValue())
                     file=grab()
@@ -98,12 +94,11 @@ public class LogParser {
             }
         final MetaCol lastForOutput=forOutput.isEmpty() ?null :forOutput.last()
 
-        config.regexes.each{key, val->
-            def c=metaColsByName[key.toLowerCase()]
+        config.regexes.each{MetaPattern mp->
+            def c=metaColsByName[mp.colName.toLowerCase()]
             if (c==null)
-                throw new Exception("Invalid column name: $key")
-            c.pattern=Pattern.compile(val.regex)
-            c.patternMatchNot=val.matchNot
+                throw new Exception("Invalid column name: ${mp.colName}")
+            c.patterns= (c.patterns ?: []) + mp
         }
 
         final StringBuilder output=new StringBuilder()
@@ -150,8 +145,9 @@ public class LogParser {
                         throw new Exception("Wut")
                     if (mc==metaColDate && dateParser!=null)
                         value=ZonedDateTime.parse(value, dateParser).format(dateFormatter)
-                    if (mc.pattern!=null)
-                        found &= (mc.pattern.matcher(value).find() ^ mc.patternMatchNot)
+                    if (mc.patterns!=null && found)
+                        for (MetaPattern mp: mc.patterns)
+                            found &= mp.pattern.matcher(value).find() ^ mp.matchNot
                     parsed.add(value)
                 }
 
@@ -230,8 +226,7 @@ public class LogParser {
 
         final int index
         String title, before, after
-        Pattern pattern
-        boolean patternMatchNot
+        List patterns
         boolean printQuote
 
         public MetaCol(String title, String before, String after) {
@@ -242,6 +237,16 @@ public class LogParser {
         }
         public String toString() {
             "Title: $title - Before: $before - After: $after"
+        }
+    }
+    private static class MetaPattern {
+        public final String colName
+        public final Pattern pattern
+        public final boolean matchNot
+        public MetaPattern(String name, String rawPattern, boolean matchNot) {
+            this.colName=name
+            this.pattern=Pattern.compile(rawPattern)
+            this.matchNot=matchNot
         }
     }
 

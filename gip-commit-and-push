@@ -12,6 +12,9 @@ while [[ $1 != "" ]]; do
     shift
     message="$1"
     shift
+  elif [[ $1 == -* ]]; then
+    echo -e "\nDon't know what to do with: $1"
+    exit 1
   elif [[ $message == "" ]]; then
     message="$1"
     shift

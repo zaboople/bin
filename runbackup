@@ -84,8 +84,8 @@ function formatStuff2() {
 
 function help() {
   echo "Required settings: "
-  formatStuff2 "BACKUP_TO"          "$BACKUP_TO"
   formatStuff2 "BACKUP_FROM"        "$BACKUP_FROM"
+  formatStuff2 "BACKUP_TO"          "$BACKUP_TO"
   formatStuff2 "BACKUP_ITEMS"       "$BACKUP_ITEMS"
   echo "Optional settings: "
   formatStuff "BACKUP_PREFIX"       "$BACKUP_PREFIX"       "(default: BACKUP_ITEMS w/ spaces/slashes removed)"

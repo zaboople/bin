@@ -27,7 +27,7 @@ public static def main(String[] args) {
         }
     }
     if (help) {
-        help()
+        helpy()
         return
     }
     if (templateInput==null && templateFile==null) {
@@ -126,7 +126,7 @@ def parseTemplate(String templateStr) {
     template
 }
 
-def help() {
+def helpy() {
     println("""
         Usage:
             gook <template>

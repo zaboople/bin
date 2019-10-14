@@ -29,10 +29,10 @@ while [[ $1 != "" ]]; do
 done
 
 if [[ $remote ]]; then
-  echo -e "\ngit push origin --delete $branch:"
+  echo -e "\nRemote delete #1:\n  git push origin --delete $branch:"
   git push origin --delete "$branch"
-  echo -e "\ngit branch -$theD -r $branch:"
+  echo -e "\nRemote delete #2:\n  git branch -$theD -r $branch:"
   git branch -$theD -r origin/$branch
 fi
-echo -e "\nDelete local:"
+echo -e "\nDelete local: \n  git branch -$theD $branch"
 git branch -$theD "$branch"

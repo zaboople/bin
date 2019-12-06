@@ -25,11 +25,10 @@ while [[ $1 ]]; do
       usage
       exit 1
     else
-      expr="$@"
+      expr="$1"
       shift
     fi
 done
-
 
 if [[ $all ]]; then
   # Our regex is going to yank the typical remote/origin/ trash that shows up at the front:

@@ -12,7 +12,7 @@ public class LogParser {
     public static void main(String[] args) {
         AppConfig config=new AppConfig(args)
         if (config.help)
-            help()
+            help(config)
         else
         if (config.file!=null)
             handle(config, new FileInputStream(new File(config.file)))
@@ -303,12 +303,23 @@ public class LogParser {
     }
 
 
-    private static void help() {
+    private static void help(AppConfig config) {
+    
+        // I'm gonna print colnames from the template if I can:
+        String colnamesInTemplate=(
+            [config.template]
+              .findAll{it!=null}
+              .collect{
+                t -> "Columns in current template: " + parseTemplate(t).collect{it.title}.join(", ")
+              } 
+            + [""]
+          ).head()
+
         println("""
             Usage: -template <text> [-log-file <filename> ] [-cols <names>] [-grep [-not] <name> <expression>]
                         [-count <day|hour|minute|second>] [-original] [-help]
 
-                Parses a given log using a template
+                Parses a given log using a template.
 
                 -template <text>:
                     Provides names surrounded by special characters that identify boundaries between the values.
@@ -328,7 +339,8 @@ public class LogParser {
 
                 -cols <names>: Print only the specified column values.
                     These are the names from the -template argument
-
+                    ${colnamesInTemplate}
+                    
                 -grep [-not] <name> <expression>: Show rows matching expression(s)
                     Allows multiple name-expression pairs, but -grep can also be used more than once. When multiple expressions
                     are used, they are "anded", which is to say all expressions must be matched or the row will not be

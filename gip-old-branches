@@ -1,0 +1,8 @@
+git branch --remote | grep origin | (
+    while read line; do
+        if [[ $line != "origin/HEAD -> origin/master" ]]; then
+            mydate=$(git log -n 1 --date=iso "$line" | grep Date | head -1)
+            echo "$mydate  ----  $line"
+        fi
+    done
+) | sort 

@@ -50,6 +50,9 @@ if [[ ! $DO_DEFAULT_BRANCH ]]; then
     gip-avoid-default-branch $bra || exit 1
 fi
 
+echo ""
+echo "Command: git push --set-upstream origin \"$bra\""
+echo ""
 if [[ $CONFIRM ]]; then
     echo -n "Push \"$bra\"? "
     read yn

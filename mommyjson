@@ -1,0 +1,1 @@
+groovy $(dirname $0)/mommyjson.groovy "$@"

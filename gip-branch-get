@@ -1,0 +1,15 @@
+while [[ $1 ]]; do
+  if [[ $1 == "-echo" ]]; then
+    echo=true
+    shift
+  else
+    echo "Don't know what to do with: $1"
+  fi
+done
+
+if [[ $echo ]]; then
+  echo "git branch | egrep '^\*' | sed 's/\* *//'"
+else
+  git branch | egrep '^\*' | sed 's/\* *//'
+fi
+

@@ -1,7 +1,0 @@
-if [[ $1 != "" ]]; then
-  git checkout -b "$@"
-  git branch
-else
-  git branch | egrep '^\*' | sed 's/\* *//'
-fi
-

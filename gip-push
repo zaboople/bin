@@ -33,7 +33,7 @@ if [[ $CURRENT ]]; then
         help
         exit 1
     fi
-    bra=$(gip-branch)
+    bra=$(gip-branch-get)
 fi
 if [[ $NO_CONFIRM ]]; then
     unset CONFIRM

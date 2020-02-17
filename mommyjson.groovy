@@ -1,11 +1,7 @@
 import groovy.json.JsonSlurper
 
 /**
- * MommyJson is a JSON pretty-printer/hand-holder for people with giant json files that are impossible to understand
- * because of ridiculously deep nesting as well as massive arrays and maps. As the name implies, the parentage
- * of a node is displayed to its left as a sort of breadcrumb, so that you know where the bleep you are.
- *
- * Note that MommyJson produces JSON-complaint output, not JSON-compliant output.
+ * A JSON parser that makes the json easier to read. Use -help to learn more.
  */
 public class MommyJson {
 
@@ -31,17 +27,7 @@ public class MommyJson {
                 }
             else
             if (args[i].startsWith("-h") || args[i].startsWith("--h")) {
-                println """
-                    Arguments: [-f <filename>] [-s <squash-size>] "
-                        -f <filename>:
-                            A json file we can parse. If not given a file, we'll just look for
-                            data in stdin.
-                        -s <squash-size>:
-                            A numeric "depth" that tells us whether to "squash" the current node
-                            onto one line, or break it out into multiple lines. The larger the
-                            squash size, the more likely we will try to squash on one line. A
-                            value of "0" will of course disable squashing entirely.
-                """
+                println helpBlob
                 return
             }
             else {
@@ -63,12 +49,15 @@ public class MommyJson {
                 println()
                 return
             }
+            // Sorting is 1. simple values before maps/lists 2. alphabetic by key
             json=json.toSorted(
                 [compare: { e1, e2 ->
-                    if ((e2.value instanceof Collection) && !(e1.value instanceof Collection))
+                    boolean e1c=e1.value instanceof Collection || e1.value instanceof Map
+                    boolean e2c=e2.value instanceof Collection || e2.value instanceof Map
+                    if (e2c && !e1c)
                         -1
                     else
-                    if ((e1.value instanceof Collection) && !(e2.value instanceof Collection))
+                    if (e1c && !e2c)
                         1
                     else
                         e1.key.compareTo(e2.key)
@@ -91,7 +80,6 @@ public class MommyJson {
             final int sz=json.size()
             json.indexed().each{index, value->
                 crawl(value, mommies+"  ["+index+"] ")
-                //if (index < sz-1) {print(mommies); println("  ,")}
             }
             print(mommies)
             println("]")
@@ -144,4 +132,25 @@ public class MommyJson {
             }
         mysize
     }
+
+    private final static String helpBlob = """
+        ---------------------------------------------------------------------------------------------------
+
+        MommyJson is a JSON pretty-printer/hand-holder for people with giant json files that are impossible
+        to understand because of ridiculously deep nesting as well as massive arrays and maps. As the name
+        implies, the parentage of a node is displayed to its left as a sort of breadcrumb, so that you know
+        where the bleep you are.
+
+        Note that MommyJson produces JSON-complaint output, not JSON-compliant output.
+
+        Arguments: [-f <filename>] [-s <squash-size>] "
+            -f <filename>:
+                A json file we can parse. Otherwise we use stdin by default.
+            -s <squash-size>:
+                A numeric "depth" that tells us whether to "squash" a given node onto one line, or break
+                it out into multiple lines. The larger the squash size, the more likely we will try to
+                squash on one line. A value of "0" will of course disable squashing entirely. Default is 3.
+
+        ---------------------------------------------------------------------------------------------------
+    """.stripIndent()
 }

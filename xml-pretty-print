@@ -1,0 +1,5 @@
+if [[ $1 ]]; then
+    xmllint --format "$@"
+else
+    xmllint --format -
+fi

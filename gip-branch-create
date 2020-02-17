@@ -1,0 +1,22 @@
+while [[ $1 ]]; do
+  if [[ $1 == "-echo" ]]; then
+    echo=true
+    shift
+  else
+    newbranchname=$1
+    shift
+  fi
+done
+
+if [[ ! $newbranchname ]]; then
+  echo "Need a name for the new branch"
+  exit 1
+fi
+
+if [[ $echo ]]; then
+  echo "git checkout -b $newbranchname"
+  echo "git branch"
+else
+  git checkout -b "$newbranchname"
+  git branch
+fi

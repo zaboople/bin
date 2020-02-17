@@ -30,6 +30,7 @@ public class LogParser {
         public boolean originalFormat=false
         public String template
         public String dateFormat
+        public boolean wrap
 
         public AppConfig(String[] args) {
             super(args)
@@ -37,13 +38,15 @@ public class LogParser {
             while (next()) {
                 if (checkArg("help"))
                     help = true
-                else if (checkArg("cols")){
+                else if (checkArg("cols") || checkArg("columns")){
                     columns=[]
                     while (isNextValue())
                         columns+=grabNext()
                 }
                 else if (checkArg("template"))
                     template=grabNext()
+                else if (checkArg("wrap"))
+                    wrap=true
                 else if (checkArg("date-format"))
                     dateFormat=grabNext()
                 else if (checkArg("log-file"))
@@ -63,7 +66,7 @@ public class LogParser {
                 else if (file==null && isValue())
                     file=grab()
                 else
-                    throw new Exception("unexpected: ${args[i]}")
+                    throw new Exception("unexpected: ${grab()}")
             }
         }
     }
@@ -78,11 +81,13 @@ public class LogParser {
         List metaCols=parseTemplate(config.template)
         Map metaColsByName=metaCols.collectEntries{[(it.title.toLowerCase()): it]}
 
-        MetaCol metaColDate=metaCols.find{it.title=="Date"}
+        MetaCol metaColDate=metaCols.find{it.title.equalsIgnoreCase("Date")}
         final DateTimeFormatter dateParser=
             metaColDate != null && config.dateFormat !=null
                 ?DateTimeFormatter.ofPattern(config.dateFormat).withZone(ZoneId.systemDefault())
                 :null
+
+        MetaCol metaColMessage=metaCols.find{it.title.equalsIgnoreCase("Message") || it.title.equalsIgnoreCase("Text")}
 
         final List forOutput=config.columns==null
             ? metaCols
@@ -118,6 +123,8 @@ public class LogParser {
         long count;
         String line
         int colCount=metaCols.size()
+        boolean lastPrinted=false
+
         while ((line=br.readLine())!=null)
             try {
                 // Initialize:
@@ -126,7 +133,7 @@ public class LogParser {
 
                 // Parse and check regex while we're at it:
                 int currIndex=0
-
+                boolean wrapped=false
                 final List parsed=new ArrayList(metaCols.size())
                 for (int i=0; i<colCount; i++) {
                     MetaCol mc=metaCols[i]
@@ -135,17 +142,33 @@ public class LogParser {
                     String value
                     if (mc.after!=null) {
                         int endindex=line.indexOf(mc.after, currIndex)
-                        if (endindex==-1)
-                            throw new Exception("Failed to find ${mc.after} for column ${mc.title}")
-                        value=line.substring(currIndex, endindex)
-                        currIndex=endindex+mc.after.length()
+                        if (endindex==-1) {
+                            if (config.wrap){
+                                wrapped=true
+                                value=line.substring(currIndex)
+                                i=colCount
+                            }else
+                                throw new Exception("Failed to find \"${mc.after}\" for column ${mc.title} at colIndex $currIndex (wrapping ${config.wrap} )")
+                        } else {
+                            value=line.substring(currIndex, endindex)
+                            currIndex=endindex+mc.after.length()
+                        }
                     } else if (i==colCount-1) {
                         value=line.substring(currIndex)
                     } else
                         throw new Exception("Wut")
-                    if (mc==metaColDate && dateParser!=null)
-                        value=ZonedDateTime.parse(value, dateParser).format(dateFormatter)
-                    if (mc.patterns!=null && found)
+                    if (!wrapped && mc==metaColDate && dateParser!=null)
+                        try {
+                            value=ZonedDateTime.parse(value, dateParser).format(dateFormatter)
+                        } catch (Exception e) {
+                            if (config.wrap){
+                                wrapped=true
+                                value=line.substring(currIndex)
+                                i=colCount
+                            } else
+                                throw e;
+                        }
+                    if (!wrapped && mc.patterns!=null && found)
                         for (MetaPattern mp: mc.patterns)
                             found &= mp.pattern.matcher(value).find() ^ mp.matchNot
                     parsed.add(value)
@@ -153,7 +176,8 @@ public class LogParser {
 
 
                 // Print output as necessary:
-                if (found || !grepping) {
+                boolean willPrint=found || !grepping || (wrapped && lastPrinted)
+                if (willPrint) {
                     if (countBy!=-1) {
                         String s=parsed[metaColDate.index]
                         s=s.substring(0, countBy)
@@ -164,16 +188,12 @@ public class LogParser {
                         } else
                             count++
                     } else {
-                        for (x in forOutput) {
-                            output.append(x.title)
-                            output.append(": ")
-                            if (x.printQuote)
-                                output.append("\"")
-                            output.append(parsed[x.index])
-                            if (x.printQuote)
-                                output.append("\"")
-                            if (x!=lastForOutput)
-                                output.append(" ")
+                        if (wrapped) {
+                            output.append("    Wrapped: ")
+                            output.append(parsed.join(" "))
+                        } else {
+                            for (x in forOutput)
+                                printColumn(output, x, parsed[x.index], x==lastForOutput)
                         }
                         if (config.originalFormat) {
                             if (lastForOutput!=null)
@@ -184,6 +204,7 @@ public class LogParser {
                         output.setLength(0)
                     }
                 }
+                lastPrinted=willPrint
 
             } catch (Exception e) {
                 System.err.println("ERROR at line $lineNumber");
@@ -193,7 +214,18 @@ public class LogParser {
             }
         if (countBy!=-1 && count>0)
             println("$countingBy $count")
+    }
 
+    private static void printColumn(Appendable output, MetaCol x, String value, boolean isLast) {
+        output.append(x.title)
+        output.append(": ")
+        if (x.printQuote)
+            output.append("\"")
+        output.append(value)
+        if (x.printQuote)
+            output.append("\"")
+        if (!isLast)
+            output.append(" ")
     }
 
     private static List parseTemplate(String template) {
@@ -304,14 +336,14 @@ public class LogParser {
 
 
     private static void help(AppConfig config) {
-    
+
         // I'm gonna print colnames from the template if I can:
         String colnamesInTemplate=(
             [config.template]
               .findAll{it!=null}
               .collect{
                 t -> "Columns in current template: " + parseTemplate(t).collect{it.title}.join(", ")
-              } 
+              }
             + [""]
           ).head()
 
@@ -340,7 +372,7 @@ public class LogParser {
                 -cols <names>: Print only the specified column values.
                     These are the names from the -template argument
                     ${colnamesInTemplate}
-                    
+
                 -grep [-not] <name> <expression>: Show rows matching expression(s)
                     Allows multiple name-expression pairs, but -grep can also be used more than once. When multiple expressions
                     are used, they are "anded", which is to say all expressions must be matched or the row will not be

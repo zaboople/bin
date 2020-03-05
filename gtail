@@ -33,7 +33,7 @@ while [[ $initWait > 0 && ! -e $file ]];
 startline=0
 for (( i=$seconds; i > 0; i-- ))
   do
-  endline=$(wc -l $file | getcol 1)
+  endline=$(wc -l $file | gawk '{print $1}')
   let endline+=1
   let countlines=$endline-$startline
   if [[ $countlines > 0  ]]; then

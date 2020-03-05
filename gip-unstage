@@ -1,5 +1,8 @@
 if [[ $1 == "" || $1 == -h* ]]; then
-  echo 'Usage: gip-unstage <file1 [file2 [...fileN]]>'
+  echo 'Usage: gip-unstage [-echo] <file1 [file2 [...fileN]]>'
+elif [[ $1 == -echo ]]; then
+  shift
+  echo "git reset HEAD \"$@\""
 else
   git reset HEAD "$@"
 fi

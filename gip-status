@@ -1,1 +1,9 @@
-git status -s "$@" | getcol 2
+if [[ $1 == -h* ]]; then
+  echo 'Usage: gip-status [files]'
+elif [[ $1 == -echo ]]; then
+  shift
+  echo "git status \"$@\""
+else
+  git status "$@"
+fi
+

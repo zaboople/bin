@@ -1,6 +1,6 @@
 default_branch=$(git remote show origin | fgrep '  HEAD branch: ' | gawk -F 'HEAD branch:' '{print $2}'  | trim)
 branch=$1
-if [[ "$default_branch" == "$branch" && "$1" != "--master" ]]; then
-  echo "NO WAY am I letting you push $branch, at least not unless you force me to via --master."
+if [[ "$default_branch" == "$branch" ]]; then
+  echo "WARNING: You are trying to push/commit: $branch! Use --master to force that anyhow."
   exit 1
 fi

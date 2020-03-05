@@ -1,1 +1,1 @@
-git reset HEAD "$@"
+$(dirname $0)/gip-unstage "$@:"

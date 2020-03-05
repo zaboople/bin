@@ -25,6 +25,14 @@ function dossh() {
         git clone git@$githost:$gituser/$gitrepo.git
     fi
 }
+function dohttp() {
+    notEnough "$@"
+    if [[ $doecho ]]; then
+        echo "git clone https://$githost/$gituser/$gitrepo.git"
+    else
+        git clone https://$githost/$gituser/$gitrepo.git
+    fi
+}
 
 while [[ $1 ]]; do
     if [[ $1 == -help || $1 == --help ]]; then
@@ -65,12 +73,7 @@ done
 if [[ $help ]]; then
     usage
 elif [[ $https ]]; then
-    notEnough "$@"
-    if [[ $doecho ]]; then
-        echo "git clone https://$githost/$gituser/$gitrepo.git"
-    else
-        git clone https://$githost/$gituser/$gitrepo.git
-    fi
+    dohttp
 else
-  dossh
+    dossh
 fi

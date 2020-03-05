@@ -1,0 +1,11 @@
+if [[ $1 == -h* ]]; then
+  echo 'Usage: gip-status-shorter <files>'
+  echo "Gets just the names of files that changed"
+elif [[ $1 == -echo ]]; then
+  shift
+  echo "git status -s \"$@\" | gawk '{print $2}'"
+else
+  git status -s "$@" | gawk '{print $2}'
+fi
+
+

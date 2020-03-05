@@ -1,5 +1,5 @@
 function help() {
-    echo "Usage: gip-push [--master] [--current [--yes]] <branch-name>"
+    echo "Usage: gip-push [-echo] [--current | <branch-name>] [--master] [--yes]"
 }
 
 FORCE=
@@ -17,11 +17,15 @@ for argg in "$@"
     elif [[ $argg == -h* || $argg == --h* ]]; then
         help
         exit 0
+    elif [[ $argg == -echo ]]; then
+        shift
+        echo=1
     elif [[ $argg == -* ]]; then
         echo "Error: Don't know what to do with: ${argg}"
         exit 1
     elif [[ ! $bra ]]; then
         bra="$argg"
+        shift
     else
         echo "Error: Don't know what to do with: $argg ... branch already specified as $bra"
     fi
@@ -33,7 +37,7 @@ if [[ $CURRENT ]]; then
         help
         exit 1
     fi
-    bra=$(gip-branch-get)
+    bra=$(gip-branch-get-name)
 fi
 if [[ $NO_CONFIRM ]]; then
     unset CONFIRM
@@ -45,6 +49,11 @@ if [[ ! $bra ]]; then
 fi
 
 echo "Branch: $bra"
+
+if [[ $echo ]]; then
+  echo "git push --set-upstream origin \"$bra\""
+  exit 0
+fi
 
 if [[ ! $DO_DEFAULT_BRANCH ]]; then
     gip-avoid-default-branch $bra || exit 1

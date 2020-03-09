@@ -1,1 +1,1 @@
-$(dirname $0)/gip-unstage "$@:"
+$(dirname $0)/gip-unstage "$@"

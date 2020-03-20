@@ -1,8 +1,9 @@
 function usage() {
   echo ""
-  echo "Usage: gip-branch-delete [-r|--remote] [-f|--force] <branch>"
+  echo "Usage: gip-branch-delete [-r|--remote] [-f|--force] <branch> [--echo]"
   echo "  --remote: Attempt to delete from the server you push to. "
-  echo "  --force: When git fights back, tell it to shut up and do it. "
+  echo "  --force:  When git fights back, tell it to shut up and do it. "
+  echo "  --echo:   Echo-only; no changes made."
   echo ""
 }
 
@@ -16,6 +17,9 @@ while [[ $1 != "" ]]; do
   elif [[ $1 == -f || $1 == "--force" ]]; then
     theD="D"
     shift
+  elif [[ $1 == -echo || $1 == "--echo" ]]; then
+    echo=1
+    shift
   elif [[ $1 == -r* || $1 == --r* ]]; then
     shift
     remote=true
@@ -27,12 +31,24 @@ while [[ $1 != "" ]]; do
     shift
   fi
 done
+if [[ ! $branch ]]; then
+  echo "No branch!"
+  exit 1
+fi
+
 
 if [[ $remote ]]; then
   echo -e "\nRemote delete #1:\n  git push origin --delete $branch:"
-  git push origin --delete "$branch"
+  if [[ ! $echo ]]; then
+    git push origin --delete "$branch"
+  fi
   echo -e "\nRemote delete #2:\n  git branch -$theD -r $branch:"
-  git branch -$theD -r origin/$branch
+  if [[ ! $echo ]]; then
+    git branch -$theD -r origin/$branch
+  fi
 fi
+
 echo -e "\nDelete local: \n  git branch -$theD $branch"
-git branch -$theD "$branch"
+if [[ ! $echo ]]; then
+  git branch -$theD "$branch"
+fi

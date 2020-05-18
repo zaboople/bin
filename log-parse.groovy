@@ -60,8 +60,9 @@ public class LogParser {
                 }
                 else if (checkArg("grep")) {
                     boolean matchNot=(checkNextArg("not") || checkNextArg("v")) && next()
+                    boolean insense=checkNextArg("i") && next()
                     while (isNextValue())
-                        regexes+=new MetaPattern(grabNext(), grabNext(), matchNot)
+                        regexes+=new MetaPattern(grabNext(), grabNext(), matchNot, insense)
                 }
                 else if (file==null && isValue())
                     file=grab()
@@ -169,8 +170,9 @@ public class LogParser {
                                 throw e;
                         }
                     if (!wrapped && mc.patterns!=null && found)
-                        for (MetaPattern mp: mc.patterns)
+                        for (MetaPattern mp: mc.patterns) {
                             found &= mp.pattern.matcher(value).find() ^ mp.matchNot
+                        }
                     parsed.add(value)
                 }
 
@@ -268,17 +270,22 @@ public class LogParser {
             this.title=title
         }
         public String toString() {
-            "Title: $title - Before: $before - After: $after"
+            "Title: $title - Before: $before - After: $after Pattern(s): $patterns"
         }
     }
     private static class MetaPattern {
         public final String colName
         public final Pattern pattern
         public final boolean matchNot
-        public MetaPattern(String name, String rawPattern, boolean matchNot) {
+        private final boolean caseInsensitive
+        public MetaPattern(String name, String rawPattern, boolean matchNot, boolean insense) {
             this.colName=name
-            this.pattern=Pattern.compile(rawPattern)
+            this.pattern=Pattern.compile(rawPattern, insense ?Pattern.CASE_INSENSITIVE :0)
             this.matchNot=matchNot
+            this.caseInsensitive=insense
+        }
+        public String toString() {
+            "{colName: $colName pattern: $pattern matchNot: $matchNot ci: $caseInsensitive}"
         }
     }
 

@@ -1,4 +1,38 @@
-while read line; do
-    #echo "Checking $line"
-    jar tf $line | gawk -v "line=$line" '{print line": "$0}'
-done;
+function doJar() {
+    filename="$1"
+    if [[ $showfilename ]]; then
+        prefix="$filename: "
+    else
+        prefix=""
+    fi
+    jar tf $filename | gawk -v "prefix=$prefix" '{print prefix $0}'
+}
+
+if [[ $1 == -h* ]]; then
+    echo ""
+    echo "Usage: alljar [-file] [file1.jar ... fileN.jar]"
+    echo "Prints class names from jar files. Reads file names from stdin: "
+    echo "   ls *.jar | alljar "
+    echo "- or as arguments: "
+    echo '   alljar $(ls *.jar)'
+    echo ""
+    echo "Parameters:"
+    echo "   -file: Print the name of the file with the classname "
+    exit 0
+fi
+
+if [[ $1 == "-file" || $1 == "-l" ]]; then
+    showfilename=1
+    shift
+fi
+
+if [[ $1 ]]; then
+    while [[ $1 ]]; do
+        doJar "$1"
+        shift
+    done
+else
+    while read line; do
+        doJar $line
+    done;
+fi

@@ -1,5 +1,0 @@
-while [[ $1 ]]; do
-    jar tf "$1" | gawk -v filename="$1" '{print filename ": " $0}'
-    shift
-done
-

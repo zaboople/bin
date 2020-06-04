@@ -1,3 +1,7 @@
+if [[ $1 == "-help" || $1 == "--help" ]]; then
+    echo "Usage delimit <delimiter> [prefix [suffix]] "
+fi
+
 delimiter="$1"
 prefix="$2"
 suffix="$3"

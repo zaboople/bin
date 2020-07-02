@@ -2,9 +2,9 @@ if [[ $1 == -h* ]]; then
   echo 'Usage: gip-status-short'
 elif [[ $1 == -echo ]]; then
   shift
-  echo "git status -s"
+  echo "git status -s" "$@"
 else
-  git status -s
+  git status -s "$@"
 fi
 
 

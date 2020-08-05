@@ -1,3 +1,3 @@
 prefix="$1"
 suffix="$2"
-gawk -v XPREF="$prefix" -v SUFFIXX="$suffix" '{printf "%s", XPREF; printf "%s", $0; printf "%s", SUFFIXX}'
+gawk -v XPREF="$prefix" -v SUFFIXX="$suffix" '{printf "%s", XPREF; printf "%s", $0; printf "%s\n", SUFFIXX}'

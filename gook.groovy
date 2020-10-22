@@ -53,7 +53,7 @@ def processLines(List template, Pattern splitPattern) {
         if (items.length!=0)
             for (x in template)
                 x.call(items)
-        println()
+        print("\n")
     }
 }
 

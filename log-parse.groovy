@@ -278,7 +278,7 @@ public class LogParser {
         public final Pattern pattern
         public final boolean matchNot
         private final boolean caseInsensitive
-        public MetaPattern(String name, String rawPattern, boolean matchNot, boolean insense) {
+        public MetaPattern(String rawPattern, String name, boolean matchNot, boolean insense) {
             this.colName=name
             this.pattern=Pattern.compile(rawPattern, insense ?Pattern.CASE_INSENSITIVE :0)
             this.matchNot=matchNot
@@ -380,11 +380,12 @@ public class LogParser {
                     These are the names from the -template argument
                     ${colnamesInTemplate}
 
-                -grep [-not] <name> <expression>: Show rows matching expression(s)
+                -grep [-i] [-not] <name> <expression>: Show rows matching expression(s)
                     Allows multiple name-expression pairs, but -grep can also be used more than once. When multiple expressions
                     are used, they are "anded", which is to say all expressions must be matched or the row will not be
                     displayed.
 
+                    [-i]: Case-insensitive match
                     [-not]: Show rows that do *not* match the expression(s); also, you can substitute "-v" for "-not".
                     <name>: Same names that can be used with -cols
                     <expression>: A regex. Allows partial match, so "foo" matches "blahfoobar"; use "^foo\$" for

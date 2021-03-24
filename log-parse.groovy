@@ -10,27 +10,35 @@ public class LogParser {
         DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXXX")
 
     public static void main(String[] args) {
-        AppConfig config=new AppConfig(args)
-        if (config.help)
-            help(config)
-        else
-        if (config.file!=null)
-            handle(config, new FileInputStream(new File(config.file)))
-        else
-            handle(config, System.in)
+        try {
+            AppConfig config=new AppConfig(args)
+            if (config.help)
+                help(config)
+            else
+            if (config.file!=null)
+                handle(config, new FileInputStream(new File(config.file)))
+            else
+                handle(config, System.in)
+        } catch (StupidUserException e) {
+            System.err.println("User error: "+e.getMessage())
+        }
     }
-
+    private static class StupidUserException extends Exception {
+        public StupidUserException(String s){super(s)}
+    }
 
     private static class AppConfig extends ArgChecker{
         public String file;
         public boolean help=false
         public final List columns
         public final List regexes=[]
+        public final List grepNums=[]
         public String countBy=false
         public boolean originalFormat=false
         public String template
         public String dateFormat
         public boolean wrap
+        public boolean continueOnError=false
 
         public AppConfig(String[] args) {
             super(args)
@@ -51,6 +59,8 @@ public class LogParser {
                     dateFormat=grabNext()
                 else if (checkArg("log-file"))
                     file=grabNext()
+                else if (checkArg("error-continue"))
+                    continueOnError=true
                 else if (checkArg("original"))
                     originalFormat=true
                 else if (checkArg("count")) {
@@ -63,6 +73,23 @@ public class LogParser {
                     boolean insense=checkNextArg("i") && next()
                     while (isNextValue())
                         regexes+=new MetaPattern(grabNext(), grabNext(), matchNot, insense)
+                }
+                else if (checkArg("grepnum")) {
+                    while (isNextValue()) {
+                        String numPattern=grabNext().trim()
+                        String colName=grabNext()
+                        boolean greater=numPattern.startsWith(">")
+                        if (!greater && !numPattern.startsWith("<"))
+                            throw new StupidUserException("Invalid pattern: $numPattern")
+                        String numstr=numPattern.substring(1);
+                        Double number
+                        try {
+                            number=Double.parseDouble(numstr)
+                        } catch (Exception e) {
+                            throw new StupidUserException("Cannot parse number: $numstr")
+                        }
+                        grepNums.add(new MetaNumPattern(colName, greater, number))
+                    }
                 }
                 else if (file==null && isValue())
                     file=grab()
@@ -106,10 +133,16 @@ public class LogParser {
                 throw new Exception("Invalid column name: ${mp.colName}")
             c.patterns= (c.patterns ?: []) + mp
         }
+        config.grepNums.each{MetaNumPattern mp->
+            def c=metaColsByName[mp.colName.toLowerCase()]
+            if (c==null)
+                throw new Exception("Invalid column name: ${mp.colName}")
+            c.grepNums= (c.grepNums ?: []) + mp
+        }
 
         final StringBuilder output=new StringBuilder()
 
-        final boolean grepping=!config.regexes.isEmpty()
+        final boolean grepping=!config.regexes.isEmpty() || !config.grepNums.isEmpty()
         String countingBy=null;
         int countBy=-1
         if ("second"==config.countBy) countBy="2019-04-26T11:07:32".length()
@@ -148,8 +181,13 @@ public class LogParser {
                                 wrapped=true
                                 value=line.substring(currIndex)
                                 i=colCount
-                            }else
-                                throw new Exception("Failed to find \"${mc.after}\" for column ${mc.title} at colIndex $currIndex (wrapping ${config.wrap} )")
+                            }else {
+                                String errMsg="Failed to find ->${mc.after}<- for column ${mc.title} at colIndex $currIndex (wrapping ${config.wrap})"
+                                if (config.continueOnError)
+                                    println("ERROR $errMsg ----- at line $lineNumber CAUSED BY: $line");
+                                else
+                                    throw new Exception(errMsg)
+                            }
                         } else {
                             value=line.substring(currIndex, endindex)
                             currIndex=endindex+mc.after.length()
@@ -169,10 +207,27 @@ public class LogParser {
                             } else
                                 throw e;
                         }
-                    if (!wrapped && mc.patterns!=null && found)
+                    if (!wrapped && mc.patterns!=null && found && value!=null)
                         for (MetaPattern mp: mc.patterns) {
                             found &= mp.pattern.matcher(value).find() ^ mp.matchNot
                         }
+                    if (!wrapped && mc.grepNums!=null && found && value!=null && !value.equals("")) {
+                        Double doub=null
+                        try {
+                            doub=Double.parseDouble(value)
+                        } catch (Exception e) {
+                            String msg="ERROR parsing $value on line $lineNumber original: $line"
+                            found=false
+                            if (config.continueOnError)
+                                println(msg)
+                            else
+                                throw new Exception(msg)
+                        }
+                        if (doub!=null)
+                            for (MetaNumPattern mp: mc.grepNums) {
+                                found &= (mp.greater ?doub > mp.number :doub < mp.number)
+                            }
+                    }
                     parsed.add(value)
                 }
 
@@ -207,15 +262,18 @@ public class LogParser {
                     }
                 }
                 lastPrinted=willPrint
-
             } catch (Exception e) {
                 System.err.println("ERROR at line $lineNumber");
                 System.err.println("CAUSED BY: $line");
-                e.printStackTrace();
+                e.printStackTrace(System.err);
                 return
             }
         if (countBy!=-1 && count>0)
             println("$countingBy $count")
+    }
+
+    private static class FormatFailException extends Exception {
+        public FormatFailException(String s){super(s)}
     }
 
     private static void printColumn(Appendable output, MetaCol x, String value, boolean isLast) {
@@ -261,6 +319,7 @@ public class LogParser {
         final int index
         String title, before, after
         List patterns
+        List grepNums
         boolean printQuote
 
         public MetaCol(String title, String before, String after) {
@@ -288,6 +347,16 @@ public class LogParser {
             "{colName: $colName pattern: $pattern matchNot: $matchNot ci: $caseInsensitive}"
         }
     }
+    private static class MetaNumPattern {
+        public final String colName
+        public final boolean greater
+        public final Double number
+        public MetaNumPattern(String colName, boolean greater, Double number){
+            this.colName=colName;
+            this.greater=greater;
+            this.number=number;
+        }
+    }
 
     /** General purpose fancy argument checker. */
     private static class ArgChecker {
@@ -312,7 +381,7 @@ public class LogParser {
                 return false
             String have=args[index]
             boolean result = have != null && (
-                have.startsWith("-${lookFor}") || have.startsWith("--${lookFor}")
+                have.equals("-${lookFor}".toString()) || have.equals("--${lookFor}".toString())
             )
             result
         }
@@ -349,7 +418,7 @@ public class LogParser {
             [config.template]
               .findAll{it!=null}
               .collect{
-                t -> "Columns in current template: " + parseTemplate(t).collect{it.title}.join(", ")
+                t -> "Columns in current template: " + parseTemplate(t).collect{it.title}.toSorted().join(", ")
               }
             + [""]
           ).head()
@@ -380,7 +449,7 @@ public class LogParser {
                     These are the names from the -template argument
                     ${colnamesInTemplate}
 
-                -grep [-i] [-not] <name> <expression>: Show rows matching expression(s)
+                -grep [-i] [-not] <expression> <name>: Show rows matching expression(s)
                     Allows multiple name-expression pairs, but -grep can also be used more than once. When multiple expressions
                     are used, they are "anded", which is to say all expressions must be matched or the row will not be
                     displayed.
@@ -390,6 +459,10 @@ public class LogParser {
                     <name>: Same names that can be used with -cols
                     <expression>: A regex. Allows partial match, so "foo" matches "blahfoobar"; use "^foo\$" for
                         an exact match.
+
+                -grepnum <expression> <name>: For testing numeric values against less-than/greater-than thresholds: > <
+
+                        -grepnum '> 3.14' ResponseTime
 
                 -original: Prints original log line
                     This prints the original log line at the end of every output line.
@@ -403,6 +476,9 @@ public class LogParser {
                         run it back through on a second pass. Yeah we know that's stupid but it works.
                     Note 2: This will not show a "0" for missing intervals; e.g. if 9:08pm has hits, and 9:10pm has hits,
                         but there are no entries for 9:09pm, then you won't see a count (of 0) for 9:09.
+
+                -error-continue
+                    Continues parsing when a line is formatted wrong, and just prints a message starting with "ERROR: ..."
 
             """.stripIndent()
         )

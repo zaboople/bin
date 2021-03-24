@@ -9,7 +9,8 @@ for x in ${@}; do
 done
 
 groovy $pathy/log-parse.groovy \
-    -template 'Host - User [Date] "Method URL Version" Status Bytes "Referer" "UserAgent" "XForwardedFor"' \
+    -template 'Host - User [Date] "Method URL Version" Status Bytes "Referer" "UserAgent" "XForwardedFor" zzz=ResponseTime zzzz=UpstreamResponseTime zzzzz=UpstreamConnectTime' \
     -date-format "dd/MMM/yyyy:HH:mm:ss XXXX" \
-    $AskForCols "$@"
+    $AskForCols \
+    "$@"
 

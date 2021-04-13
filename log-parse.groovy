@@ -21,6 +21,9 @@ public class LogParser {
                 handle(config, System.in)
         } catch (StupidUserException e) {
             System.err.println("User error: "+e.getMessage())
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1)
         }
     }
     private static class StupidUserException extends Exception {
@@ -66,7 +69,7 @@ public class LogParser {
                 else if (checkArg("count")) {
                     String byWhat=isNextValue() ?grabNext() :"second"
                     countBy=countBys.find{it==byWhat}
-                    if (countBy==null) throw new Exception("Invalid: $byWhat")
+                    if (countBy==null) throw new StupidUserException("Invalid: $byWhat")
                 }
                 else if (checkArg("grep")) {
                     boolean matchNot=(checkNextArg("not") || checkNextArg("v")) && next()
@@ -94,7 +97,7 @@ public class LogParser {
                 else if (file==null && isValue())
                     file=grab()
                 else
-                    throw new Exception("unexpected: ${grab()}")
+                    throw new StupidUserException("unexpected: ${grab()}")
             }
         }
     }
@@ -122,7 +125,7 @@ public class LogParser {
             : config.columns.collect{
                 def c=metaColsByName[it.toLowerCase()]
                 if (c==null)
-                    throw new Exception("Invalid column name: $it")
+                    throw new StupidUserException("Invalid column name: $it")
                 c
             }
         final MetaCol lastForOutput=forOutput.isEmpty() ?null :forOutput.last()
@@ -130,13 +133,13 @@ public class LogParser {
         config.regexes.each{MetaPattern mp->
             def c=metaColsByName[mp.colName.toLowerCase()]
             if (c==null)
-                throw new Exception("Invalid column name: ${mp.colName}")
+                throw new StupidUserException("Invalid column name: ${mp.colName}")
             c.patterns= (c.patterns ?: []) + mp
         }
         config.grepNums.each{MetaNumPattern mp->
             def c=metaColsByName[mp.colName.toLowerCase()]
             if (c==null)
-                throw new Exception("Invalid column name: ${mp.colName}")
+                throw new StupidUserException("Invalid column name: ${mp.colName}")
             c.grepNums= (c.grepNums ?: []) + mp
         }
 
@@ -195,7 +198,7 @@ public class LogParser {
                     } else if (i==colCount-1) {
                         value=line.substring(currIndex)
                     } else
-                        throw new Exception("Wut")
+                        throw new StupidUserException("Wut")
                     if (!wrapped && mc==metaColDate && dateParser!=null)
                         try {
                             value=ZonedDateTime.parse(value, dateParser).format(dateFormatter)
@@ -401,7 +404,7 @@ public class LogParser {
         }
         public String grab() {
             if (i>=args.length)
-                throw new Exception("Expected more arguments")
+                throw new StupidUserException("Expected more arguments")
             if (args[i]==null)
                 throw new Exception("Internal error: Null argument")
             String r=args[i];

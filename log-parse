@@ -1,0 +1,2 @@
+pathy=$(dirname $0)
+groovy $pathy/log-parse.groovy "$@"

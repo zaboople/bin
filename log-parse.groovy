@@ -99,6 +99,8 @@ public class LogParser {
                 else
                     throw new StupidUserException("unexpected: ${grab()}")
             }
+            if (template==null)
+              throw new StupidUserException("Need a template");
         }
     }
 
@@ -409,6 +411,10 @@ public class LogParser {
                 throw new Exception("Internal error: Null argument")
             String r=args[i];
             args[i]=null;
+            if (r.startsWith('"') && r.endsWith('"'))
+              // This is because groovy will try to expand filenames to absolute path, so
+              // we have to do inner quoting, e.g. log.parse.groovy -grep '"/devices"' url
+              r=r.substring(1, r.length()-1);
             r
         }
     }

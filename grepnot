@@ -1,0 +1,12 @@
+if [[ $1 == -help || $1 == "" ]]; then
+    echo "
+        Usage: <list files> | grepnot <grep arguments>
+        Example: find . -type f | grepnot -i '.*some words.*'
+            Looks for files that do NOT contain the given expression.
+            Give a list of files to check on stdin.
+    "
+    exit 0
+fi
+while read xxxx; do
+    egrep "$@" $xxxx > /dev/null || echo $xxxx
+done

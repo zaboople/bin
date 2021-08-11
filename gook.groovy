@@ -129,8 +129,13 @@ def parseTemplate(String templateStr) {
 def helpy() {
     println("""
         Usage:
-            gook <template>
-            gook -f <template-file>
+            gook [-F <delimiter>] <template>
+            gook [-F <delimiter>] -f <template-file>
+
+            <template>: An inline text template
+            -F <delimiter>: Specify a delimiter as you would with gawk
+            -f <template-file>: Specify a file containing a template (helpful
+                with multi-line templates)
 
         Gook is a gawk/awk replacement that allows you to just use a template with
         \$# syntax for indexed variables. For example:

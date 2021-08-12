@@ -52,32 +52,35 @@ def processLines(List template, Pattern splitPattern) {
         String[] items = splitPattern.split(line).findAll{"" != it}
         if (items.length!=0)
             for (x in template)
-                x.call(items)
+                x.call(line, items)
         print("\n")
     }
 }
 
-def parseTemplate(String templateStr) {
+def List parseTemplate(String templateStr) {
     List template=[]
-    def yell={s->
-        template.add({__->print(s)})
+    def addPrint={s->
+        template.add({___, __->print(s)})
     }
-    def yellItem={i->
+    def addPrintItem={i->
         i= i-1
-        template.add({items->
+        template.add({all, items->
+            if (i==-1)//Means $0
+                print(all)
+            else
             if (i<items.length)
                 print(items[i])
         })
     }
     def grabIndex={endIndex, afterIndex->
         int index=Integer.parseInt(templateStr.substring(0, endIndex))
-        yellItem(index)
+        addPrintItem(index)
         templateStr=templateStr.substring(afterIndex)
     }
     def addRemainder={i->
         String remainder=templateStr.substring(0, i)
         if (remainder!="")
-            yell(remainder)
+            addPrint(remainder)
     }
     def lteq={a, b->
         a > -1 && (a <= b || b==-1)
@@ -113,16 +116,16 @@ def parseTemplate(String templateStr) {
             }
         } else if (lteq(i3, i4)) {
             addRemainder(i3)
-            yell("\$")
+            addPrint("\$")
             templateStr=templateStr.substring(i3+2)
         } else {
             addRemainder(i4)
-            yell("\\")
+            addPrint("\\")
             templateStr=templateStr.substring(i4+2)
         }
     }
     if (templateStr!="")
-        yell(templateStr)
+        addPrint(templateStr)
     template
 }
 
@@ -145,6 +148,10 @@ def helpy() {
         And of course you can do the "stricter" way of saying variable names:
 
             cat myfile | gook 'First value is \${1}, Second value is \${2}'
+
+        And yes as with gawk, \$0 means "the whole darn line!" instead of just a part of it:
+
+            cat myfile | gook 'Here is the whole line: \${0}'
 
         But how to escape the \$ symbol? With \\ of course:
 

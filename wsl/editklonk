@@ -1,0 +1,10 @@
+#!/bin/bash
+if [[ $KLONK_HOME != "" ]]; then
+  mkdir -p "${KLONK_HOME}"
+  klonkhome="$(cygpath -w $KLONK_HOME)"
+  wslpath -w "$@" | xargs klonk -home "$klonkhome" &
+else
+  for xx in "$@"; do
+    klonk.exe $(wslpath -w "$xx") &
+  done
+fi

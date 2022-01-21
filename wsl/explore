@@ -1,0 +1,4 @@
+x="'"
+wslpath -w "$@" \
+  | gawk '{print "'$x'"$0"'$x'"}' \
+  | xargs explorer.exe

@@ -1,2 +1,0 @@
-# For moron coworkers who switch line breaks/endings from CRLF to LF and back
-git diff --ignore-cr-at-eol "$@"

@@ -99,7 +99,7 @@ public class LogParser {
                 else
                     throw new StupidUserException("unexpected: ${grab()}")
             }
-            if (template==null)
+            if (template==null && !help)
               throw new StupidUserException("Need a template");
         }
     }

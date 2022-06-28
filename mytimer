@@ -1,0 +1,83 @@
+#!/bin/bash
+function doPauses() {
+    mytime=$1
+    while [[ 1 == 1 ]]; do
+        echo -n "0 "
+        sleep 1
+        for (( i=1; i <= $mytime; i++ ));
+            do sleep 1;
+            echo -n "$i ";
+        done
+        echo -n "Again?"
+        read yukyuk
+    done
+}
+function doNoPause() {
+    mytime=$1
+    j=0
+    marker=0
+    while [[ 1 == 1 ]]; do
+        for (( i=1; i <= $mytime; i++ ));
+            do sleep 1;
+            echo -n "$i ";
+        done
+        if [[ $j == 0 ]]; then
+            echo " --- "
+            j=1
+        else
+            echo " *** "
+            j=0
+        fi
+        let "marker = marker + 1"
+        if [[ $marker == 5 ]]; then
+            echo "---------------"
+            marker=0
+        fi
+    done
+}
+function doHelp() {
+echo "
+Usage: mytimer [-i|-q] <count>
+    -i Interactive (you must press enter when it reaches count)
+    -q Non-interactive (default)
+
+Examples:
+    mytimer -i 10
+    mytimer -q 10
+    mytimer 10
+"
+}
+
+#################
+# MAIN PROGRAM: #
+#################
+
+if [[ $1 == -i ]]; then
+    shift
+    if [[ ! $1 ]]; then
+        echo "Error: Missing time value "
+        doHelp
+        exit 1
+    fi
+    doPauses $1
+elif [[ $1 == -r ]]; then
+    shift
+    if [[ ! $1 ]]; then
+        echo "Error: Missing time value "
+        doHelp
+        exit 1
+    fi
+    doNoPause $1
+elif [[ $1 == "help" || $1 == "-help" || $1 == "--help" ]]; then
+    doHelp
+else
+    [[ $1 =~ [0-9]* ]]
+    if [[ ${BASH_REMATCH[0]} ]]; then
+        doNoPause $1
+    else
+        echo "Error: Unexpected: $1"
+        doHelp
+        exit 1
+    fi
+fi
+

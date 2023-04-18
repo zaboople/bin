@@ -1,0 +1,3 @@
+# For merging master into current branch as an "x" commit,
+# i.e. the merge message is irrelevant.
+git merge origin/master -m 'merge origin/master'

@@ -36,7 +36,6 @@ public static def main(String[] args) {
         System.exit(1)
         return
     }
-
     processLines(
         parseTemplate(
             templateFile==null

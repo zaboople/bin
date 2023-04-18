@@ -2,7 +2,7 @@ if [[ $1 == "" || $1 == -h* ]]; then
   echo 'Reverts file to its last commit.'
   echo 'Usage: gip-undo <file1 [file2 [...fileN]]>'
 else
-  git checkout -- "$@" || exit 1
+  git checkout -- "$@"
   git clean -f -d "$@" || exit 1
   git status
 fi

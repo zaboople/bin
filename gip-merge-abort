@@ -1,2 +1,1 @@
-git merge --abort "$@"
-gip-status
+git merge --abort

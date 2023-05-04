@@ -1,0 +1,4 @@
+# 1. Strip leading quotes: ^head of line, whitespace, optional "+", quote mark
+# 2. Strip trailing quotes:
+perl -pe 's/^(\t| )*(\+)?"//' |\
+    perl -pe 's/" *(\+)?$//'

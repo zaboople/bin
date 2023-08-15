@@ -1,1 +1,6 @@
-git merge --abort
+# Note: merge --abort fails to abort when you are doing squash merge and are trying to bail out of merge conflicts
+#       reset --merge works for both cases
+
+#git merge --abort
+git reset --merge
+

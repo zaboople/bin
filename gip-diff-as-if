@@ -6,4 +6,4 @@ if [[ $1 == -help || ! $1 ]]; then
   exit 1
 fi
 
-git diff --merge-base "$*"
+git diff --merge-base ${*}

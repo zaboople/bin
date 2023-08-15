@@ -1,0 +1,26 @@
+function help() {
+    echo ""
+    echo "Dumps html to file and then uses lynx to read it"
+    echo "Usage: lynxoff <url> <temp file>"
+    echo ""
+}
+if [[ $1 == -h* ]]; then
+    help
+    exit 0
+elif [[ ! $1 ]]; then
+    echo "ERROR: Need 2 arguments";
+    help
+    exit 1
+elif [[ ! $2 ]]; then
+    echo "ERROR: Need 2 arguments";
+    help
+    exit 1
+fi
+url="$1"
+filename="$2"
+if [[ $filename != *.html ]]; then
+    filename="$filename.html";
+fi
+curl --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36' "$url" > "$filename" ;
+lynx "$filename";
+

@@ -1,26 +1,48 @@
 function help() {
     echo ""
-    echo "Dumps html to file and then uses lynx to read it"
-    echo "Usage: lynxoff <url> <temp file>"
+    echo "Calls URL with browser user agent, follows redirects, "
+    echo "  reads html to file and then uses lynx to read it."
+    echo ""
+    echo "Usage: lynxoff [temp file] <url>"
+    echo ""
+    echo "  [temp file]: Optional if you define a LYNXOFF_TEMP_FILE variable."
     echo ""
 }
+
+# INPUT VALIDATION & GATHERING:
+filename="$LYNXOFF_TEMP_FILE";
+
 if [[ $1 == -h* ]]; then
     help
     exit 0
 elif [[ ! $1 ]]; then
-    echo "ERROR: Need 2 arguments";
+    echo "ERROR: Need URL";
     help
     exit 1
-elif [[ ! $2 ]]; then
-    echo "ERROR: Need 2 arguments";
+elif [[ ! $2 && ! $filename ]]; then
+    echo "ERROR: Need temporary file";
     help
     exit 1
 fi
-url="$1"
-filename="$2"
+
+if [[ $2 ]]; then
+    filename="$1";
+    shift;
+elif [[ ! $filename ]]; then
+    filename="$1";
+    shift;
+fi
+url="$1";
+# Lynx will break if we don't end file name with .html. Stupid, yes.
 if [[ $filename != *.html ]]; then
     filename="$filename.html";
 fi
-curl -L --header 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36' "$url" > "$filename" ;
-lynx "$filename";
+
+# GET DATA AND DISPLAY:
+USER_AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36';
+
+echo "Downloading to $filename...";
+curl -L --insecure --header "User-Agent: $USER_AGENT" "$url" > "$filename" || exit 1;
+echo "Viewing...";
+lynx -assume-charset=utf-8 "$filename";
 

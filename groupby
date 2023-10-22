@@ -1,8 +1,10 @@
 #!/bin/bash
 if [[ $1 == -help ]]; then
-  echo 'Usage: <cmd> | GroupBy [-having <expr> [ -nocount ] ]'
+  echo 'Usage: <cmd> | GroupBy [-having <expr> [-nocount] [-chars] ]'
   echo '  <expr> can be something like ">= 2", "<5", "==3"   '
-  echo '  Note: Alternatively, use "uniq -c", although that does not have -having '
+  echo "  -nocount Don't display count "
+  echo '  -chars Count characters instead of lines '
+  echo 'Note: Alternatively, use "uniq -c", although that does not have -having '
   exit
 fi
 
@@ -10,6 +12,7 @@ fi
 having=' > 0 '
 nocount=""
 dototal="0"
+dochars=0
 
 while [[ $1 != "" ]]; do
   if [[ $1 == -having ]]; then
@@ -22,12 +25,15 @@ while [[ $1 != "" ]]; do
   elif [[ $1 == -total ]]; then
     shift
     dototal="1"
+  elif [[ $1 == -c* || $1 == -chars ]]; then
+    shift
+    dochars=1
   fi
 done
 
 
 sort | \
-  gawk -v "nocount=$nocount" -v "dototal=$dototal" '
+  gawk -v "nocount=$nocount" -v "dototal=$dototal" -v "dochars=$dochars" '
 
     function punt(count, line){
       if (nocount!="on")
@@ -35,20 +41,21 @@ sort | \
       print line;
     }
 
-    BEGIN{
-      x=-1; total=0; lastline=""
+    BEGIN {
+      x=-1; total=0; lastline=""; lastlen=0;
     }
 
     {
-      total=total+1
+      total=total+lastlen;
       if (lastline != $0)  {
         if (x '"$having"' )
           punt(x, lastline)
         lastline=$0;
-        x=1
+        lastlen=dochars ?length(lastline) :1;
+        x=lastlen;
       }
       else {
-        x=x+1;
+        x=x+lastlen;
       }
     }
 

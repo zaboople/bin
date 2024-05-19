@@ -1,0 +1,11 @@
+function blergh() {
+  find . -type f "$@" | egrep -v '/(\.git|node_modules|build)/'
+}
+
+if [[ $1 == "-print0" || $1 == "-0" || $1 == "--null" ]]; then
+  shift
+  blergh "$@" | null-delimit
+else
+  blergh "$@"
+fi
+

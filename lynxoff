@@ -3,46 +3,80 @@ function help() {
     echo "Calls URL with browser user agent, follows redirects, "
     echo "  reads html to file and then uses lynx to read it."
     echo ""
-    echo "Usage: lynxoff [temp file] <url>"
+    echo "Usage: lynxoff [--temp <file>] [--resume] [--ua <googlebot|mozilla>] [url]"
     echo ""
-    echo "  [temp file]: Optional if you define a LYNXOFF_TEMP_FILE variable."
+    echo "  [--resume]: Resume viewing file after crash or exit "
+    echo "  [--temp file]: Optional if you define a LYNXOFF_TEMP_FILE variable."
+    echo "  [--ua <agent>]: Specify which user agent to use, googlebot or mozilla."
+    echo "      Default UA is googlebot, but some servers are friendlier to mozilla."
     echo ""
 }
 
 # INPUT VALIDATION & GATHERING:
 filename="$LYNXOFF_TEMP_FILE";
+resuming=0;
+useragent=googlebot
+while [[ $1 ]]; do
+    if [[ $1 == -h* ]]; then
+        help
+        exit 0
+    elif [[ $1 == -res* || $1 == --res* ]]; then
+        shift
+        resuming=1;
+    elif [[ $1 == -temp* || $1 == --temp* ]]; then
+        shift
+        filename="$1";
+        shift;
+    elif [[ $1 == -ua* || $1 == --ua* ]]; then
+        shift
+        useragent="$1";
+        shift;
+    elif [[ $1 == -* || $1 == --* ]]; then
+        echo -e "\nERROR: Unexpected parameter: \"$1\"";
+        help;
+        exit 1;
+    elif [[ $2 ]]; then
+        filename="$1";
+        shift;
+    else
+        url="$1";
+        shift;
+    fi
+done
 
-if [[ $1 == -h* ]]; then
-    help
-    exit 0
-elif [[ ! $1 ]]; then
+if [[ ! $url && $resuming != 1 ]]; then
+    echo ""
     echo "ERROR: Need URL";
     help
     exit 1
-elif [[ ! $2 && ! $filename ]]; then
+elif [[ ! $filename ]]; then
+    echo ""
     echo "ERROR: Need temporary file";
     help
     exit 1
 fi
 
-if [[ $2 ]]; then
-    filename="$1";
-    shift;
-elif [[ ! $filename ]]; then
-    filename="$1";
-    shift;
-fi
-url="$1";
 # Lynx will break if we don't end file name with .html. Stupid, yes.
 if [[ $filename != *.html ]]; then
     filename="$filename.html";
 fi
 
-# GET DATA AND DISPLAY:
-USER_AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36';
+# Different user agents work better at different times.
+if [[ $useragent == "mozilla" ]]; then
+    USER_AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36';
+elif [[ $useragent == "googlebot" ]]; then
+    USER_AGENT='Googlebot/2.1 (+http://www.google.com/bot.html)';
+else
+    echo -e "ERROR: Invalid user agent: \"$useragent\""
+    help
+    exit 1
+fi
 
-echo "Downloading to $filename...";
-curl -L --insecure --header "User-Agent: $USER_AGENT" "$url" > "$filename" || exit 1;
-echo "Viewing...";
+# GET DATA AND DISPLAY:
+if [[ $resuming != 1 ]]; then
+    echo "** Downloading to $filename...";
+    curl -L --insecure --header "User-Agent: $USER_AGENT" "$url" > "$filename" || exit 1;
+fi
+echo "** Viewing $filename...";
 lynx -assume-charset=utf-8 "$filename";
 

@@ -1,7 +1,11 @@
 #!/bin/bash
 if [[ $1 == "-" ]]; then
-
-  file=$TEMP/Edit_$PPID$RANDOM
+  if [[ ! $TEMP ]]; then
+    echo "No TEMP env variable exists. "
+    echo "TEMP names our global temporary directory, and it can be whatever you want."
+    exit 1
+  fi
+  file=$TEMP/Editing_$PPID$RANDOM
   cat > $file
   echo $file
   "$MYEDITOR" "$file" &

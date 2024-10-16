@@ -1,0 +1,41 @@
+function usage() {
+  echo "
+Usage: gip-branch-delete-local <branch> [--force] [--echo]
+  This promises and swears NOT to touch the remote branch
+  or even to cause future pushes/pulls to touch it.
+  --force:  When git fights back, tell it to shut up and do it.
+  --echo:   Echo-only; no changes made.
+  "
+}
+
+
+theD="d"
+
+while [[ $1 != "" ]]; do
+  if [[ $1 == -h* || $1 == --h* || $1 == "" ]]; then
+    usage
+    exit 1
+  elif [[ $1 == -f* || $1 == "--force" ]]; then
+    theD="D"
+    shift
+  elif [[ $1 == -echo || $1 == "--echo" ]]; then
+    echo=1
+    shift
+  elif [[ $1 == -* || $branch ]]; then
+    echo "Don't know what to do with: $1"
+    exit 1
+  else
+    branch="$1"
+    shift
+  fi
+done
+if [[ ! $branch ]]; then
+  echo "No branch!"
+  exit 1
+fi
+
+
+echo -e "\nDelete local: \n  git branch -$theD $branch"
+if [[ ! $echo ]]; then
+  git branch -$theD "$branch"
+fi

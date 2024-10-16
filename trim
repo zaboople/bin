@@ -1,4 +1,4 @@
 #!/bin/bash
-cat "$@" | awk '{if (! /^[[:space:]]*$/)
+cat "$@" | gawk '{if (! /^[[:space:]]*$/)
         print gensub("(^[[:space:]]*|[[:space:]]*$)", "", "g");
       }'

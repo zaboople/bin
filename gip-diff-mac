@@ -1,0 +1,5 @@
+if [[ $1 == "-echo" ]]; then
+    echo 'git diff --color=always | less -r'
+    exit 0
+fi
+git diff --color=always "$@" | less -r

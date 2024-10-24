@@ -1,0 +1,9 @@
+if [[ $1 == -echo ]]; then
+    shift
+    echo "git checkout tags/$1"
+elif [[ ! $1 ]]; then
+    echo "Need a tag name - try gip-tag-list"
+    exit 1
+else
+    git checkout tags/$1
+fi

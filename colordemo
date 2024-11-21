@@ -1,0 +1,31 @@
+function dumb() {
+    i=1;
+    while [[ $i -lt 200 ]]; do
+        echo $i
+        echo -n -e '\e[1;'$i'm foo'
+        i=$(($i + 1))
+    done;
+}
+
+function runthru() {
+    for xx in "$@"; do
+        echo -e '\e[1;'$xx'mColor '$xx' syntax:'
+        echo -e "echo -e '\\\\e[1;${xx}mColor $xx'"
+    done
+    for xx in "$@"; do
+        echo -e -n '\e[1;'$xx'mColor '$xx' '
+    done
+    echo
+}
+echo
+echo "Notes:"
+echo "- \\e means escape"
+echo "- We add a '1;' to get boldface color because mmm boldface is bold"
+echo "- Add a -n to your echo to suppress newline and change colors as you go"
+echo
+echo "Subdued:"
+runthru 31 32 33 34 35 36
+echo -e '\e[0;0m'
+echo "Bright:"
+runthru 91 92 93 94 95 96
+

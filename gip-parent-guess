@@ -1,0 +1,18 @@
+if [[ $1 ==  -h* || $1 == --h* ]]; then
+    echo "
+    Usage: gip-parent-guess [-echo]
+    Attempts to find out the parent branch by running a fancy git command.
+    The parent branch usually is on the second line mixed in with other names.
+    Yes that sucks but it's better than nothing.
+    "
+    exit 0
+elif [[ $1 == -echo || $1 == --echo ]]; then
+    myecho=1
+    shift
+fi
+
+if [[ $myecho ]]; then
+    echo git log  --graph --decorate --oneline --simplify-by-decoration
+else
+    git log  --graph --decorate --oneline --simplify-by-decoration
+fi

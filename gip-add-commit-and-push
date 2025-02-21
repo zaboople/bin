@@ -1,2 +1,0 @@
-gip-add .
-gip-commit-and-push "$@"

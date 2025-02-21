@@ -1,9 +1,0 @@
-if [[ $1 == -help || ! $1 ]]; then
-  echo "Usage: gip-diff-as-if <branch>"
-  echo "Diffs against branch as if we first merged it into ours"
-  echo "Useful when comparing against a branch that SHOULD be"
-  echo "merged into ours, but hasn't been yet."
-  exit 1
-fi
-
-git diff --merge-base ${*}

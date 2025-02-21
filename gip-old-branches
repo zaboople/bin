@@ -1,9 +1,0 @@
-git branch --remote | grep origin | (
-    while read line; do
-        if [[ $line != "origin/HEAD -> origin/master" ]]; then
-            mydate=$(git log -n 1 --date=iso "$line" | grep Date | perl -pe 's/Date:   //' | head -1)
-            author=$(git log -n 1 --date=iso "$line" | grep Author | perl -pe 's/Author: //' | head -1)
-            echo "$mydate  ----  $line ---- $author"
-        fi
-    done
-)

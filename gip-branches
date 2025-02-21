@@ -1,8 +1,0 @@
-if [[ $1 == -h* ]]; then
-  echo 'Usage: gip-branches [-echo]'
-elif [[ $1 == -echo ]]; then
-  shift
-  echo "git branch"
-else
-  git branch
-fi

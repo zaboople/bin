@@ -1,9 +1,0 @@
-# This does a squash merge:
-# 1 Does a pull right beforehand, so that we're up to date
-# 2 Does a standard squash merge, which leaves us with staged changes
-# 3 Unstages the changes so that we can stage different pieces as we like
-#   and break up our commits.
-gip-pull-ff
-git merge --squash "$@" || exit 1
-git reset HEAD
-

@@ -1,1 +1,1 @@
-find . -type f  | egrep -v '/(\.git|node_modules|build)/' | null-delimit | xargs -0 egrep "$@"
+findfiles-nogit-nonode --null | xargs -0 egrep "$@"

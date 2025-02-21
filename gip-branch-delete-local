@@ -18,6 +18,9 @@ while [[ $1 != "" ]]; do
   elif [[ $1 == -echo || $1 == "--echo" ]]; then
     echo=1
     shift
+  elif [[ $1 == -force || $1 == "--force" ]]; then
+    theD="D"
+    shift
   elif [[ $1 == -* || $branch ]]; then
     echo "Don't know what to do with: $1"
     exit 1

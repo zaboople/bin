@@ -1,1 +1,8 @@
-find ~ -name '.DS_Store' -type f -print0 | xargs --null rm
+basedir="$1"
+if [[ ! $1 ]]; then
+    basedir="."
+fi
+find "$basedir" -name .DS_Store | while read xxx; do
+    echo "$xxx"
+    rm "$xxx"
+done

@@ -1,0 +1,41 @@
+function help() {
+    echo '
+    Usage: k8-bash <[--pod] <pod>> [--con[tainer] <container>] [--cmd <cmd>]
+    '
+}
+while [[ $1 ]]; do
+    if [[ $1 == --cmd || $1 == --command ]]; then
+        shift
+        mycmd="$1";
+    elif [[ $1 == --con*  ]]; then
+        shift
+        mycontainer=$1;
+    elif [[ $1 == --pod ]]; then
+        shift
+        mypod=$1;
+    elif [[ $1 == -* || $mypod ]]; then
+        echo
+        echo "Error: Unexpected: $1"
+        help
+        exit 1
+    else
+        mypod=$1
+    fi
+    shift
+done
+
+if [[ ! $mypod ]]; then
+    echo
+    echo "Error: Need a pod"
+    help
+    exit 1
+fi
+if [[ $mycontainer ]]; then
+    mycon="-c $mycontainer";
+fi
+
+if [[ $mycmd ]]; then
+    kubectl exec -i "$mypod" $mycon -- bash -c "$mycmd";
+else
+    kubectl exec -it "$mypod" $mycon -- bash
+fi

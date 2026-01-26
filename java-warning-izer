@@ -1,0 +1,24 @@
+# When working with a giant morass of compiler warnings
+# left behind by degenerate, vacuous & disshevelled slobstacks,
+# this can help you get a handle on how many files are crapped
+# up and how badly.
+
+egrep 'WARNING.*\.java' | gawk -F".java:" '{
+    filename = $1".java";
+    gsub(/\[WARNING\]/, "", filename);
+    printf(filename);
+    printf(" ");
+    if ($0 ~ /.*unchecked generic array.*/)
+        printf("unchecked generic array");
+    else if ($0 ~ /.*unchecked method invoc.*/)
+        printf("unchecked method invocation");
+    else if ($0 ~ /.*unchecked conversion.*/)
+        printf("unchecked conversion");
+    else if ($0 ~ /.*raw type.*/)
+        printf("raw type");
+    else if ($0 ~ /.*deprecated.*/)
+        printf("deprecated");
+    else
+        printf(" ??? " $2);
+    print("");
+}'

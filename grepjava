@@ -1,1 +1,27 @@
-find '.' '(' -name '*.java' ')' -print0 | xargs -0 egrep "$@"
+declare -a params=();
+while [[ $1 ]]; do
+    if [[ $1 == "--notest" || $1 == "--no-test" || $1 == "-notest" || $1 == "-no-test" ]]; then
+        notest=1
+    elif [[ $1 == "--help" || $1 == "-help" ]]; then
+        echo ""
+        echo "Usage: grepjava [ --notest ] <params for grep>"
+        echo "  --notest : Filters out src/test files"
+        echo ""
+        exit 0
+    else
+        params+=("$1")
+    fi
+    shift
+done
+
+function myfilter() {
+    if [[ $notest ]]; then
+        grep -v src/test
+    else
+        cat
+    fi
+}
+
+find '.' '(' -name '*.java' ')' -print0 | \
+    xargs -0 egrep "${params[@]}" | \
+    myfilter
